@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+message Player {
+  string name = 1;
+  int32 level = 2;
+}
+
+// 在 .proto 目录下运行：
+// npx pbjs -t static-module -w commonjs -o player.js player.proto
+// npx pbts -o player.d.ts player.js
+// pbjs：编译 .proto 为 JavaScript
+// pbts：生成 TypeScript 类型定义
+/* 
+  import * as protobuf from "../proto/player.js";
+  const Player = protobuf.default.Player || protobuf.Player; // const Player = (protobuf as any).Player; // 加上 `as any` 解决 TS 类型错误
+  let playerData = Player.create({ name: "CocosDev", level: 10 }); 
+  let buffer = Player.encode(playerData).finish();
+  console.log("Encoded Buffer:", buffer);
+  let decodedPlayer = Player.decode(buffer);
+  console.log("Decoded Player:", decodedPlayer);
+*/
+
+// npx pbjs -t static-module -w es6 -o player.js player.proto
+// npx pbts -o player.d.ts player.js

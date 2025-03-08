@@ -1,0 +1,90 @@
+{
+    "$schema": "./@types/schema/package/index.json",
+    "package_version": 2,
+    "name": "game-framwork",
+    "version": "1.0.0",
+    "author": "Cocos Creator",
+    "editor": ">=3.8.5",
+    "scripts": {
+        "preinstall": "node ./scripts/preinstall.js",
+        "build": "tsc"
+    },
+    "description": "i18n:game-framwork.description",
+    "main": "./dist/main.js",
+    "dependencies": {
+        "chokidar": "^4.0.3",
+        "fs-extra": "^10.0.0"
+    },
+    "devDependencies": {
+        "@cocos/creator-types": "^3.8.5",
+        "@types/fs-extra": "^9.0.5",
+        "@types/node": "^18.17.1"
+    },
+    "panels": {
+        "default": {
+            "title": "game-framwork Default Panel",
+            "type": "dockable",
+            "main": "dist/panels/default",
+            "size": {
+                "min-width": 400,
+                "min-height": 300,
+                "width": 1024,
+                "height": 600
+            }
+        }
+    },
+    "contributions": {
+        "asset-db": {
+            "mount": {
+                "path": "./assets",
+                "readonly": true
+            }
+        },
+        "inspector": {
+            "section": {
+                "node": {
+                    "L10nLabel": "./dist/components/L10n-Label.js"
+                }
+            }
+        },
+        "menu": [
+            {
+                "path": "i18n:menu.panel/game-framwork",
+                "label": "i18n:game-framwork.open_panel",
+                "message": "open-panel"
+            },
+            {
+                "path": "i18n:menu.develop/game-framwork",
+                "label": "i18n:game-framwork.send_to_panel",
+                "message": "send-to-panel"
+            }
+        ],
+        "messages": {
+            "get-text": {
+                "public": true,
+                "description": "获取多语言文件Json数据",
+                "methods": [
+                    "getTextData"
+                ]
+            },
+            "get-Image": {
+                "public": true,
+                "description": "获取多语言图片Json数据",
+                "methods": [
+                    "getImageData"
+                ]
+            },
+            "open-panel": {
+                "methods": [
+                    "openPanel"
+                ]
+            },
+            "send-to-panel": {   
+                "methods": [
+                    "default.hello" 
+                ]
+            }
+        }
+    }, 
+    "license": "ISC"
+}
