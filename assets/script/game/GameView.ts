@@ -88,14 +88,14 @@ export class GameView extends UIView {
                 }, () => {
                     console.log('播放结束');
                 })
-                let httpReq = new HttpRequest();
-                httpReq.get("http://127.0.0.1:8000/items/100", "", (data => {
-                    if (data.success) {
-                        console.log(data.response);
-                    } else {
-                        console.log(data.error);
-                    }
-                }));
+                // let httpReq = new HttpRequest();
+                // httpReq.get("http://127.0.0.1:8000/items/100", "", (data => {
+                //     if (data.success) {
+                //         console.log(data.response);
+                //     } else {
+                //         console.log(data.error);
+                //     }
+                // }));
                 break;
             case '2':
                 SceneMgr.openDialog(SetDialog, (dialog: SetDialog) => {

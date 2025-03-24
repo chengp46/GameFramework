@@ -79,12 +79,12 @@
                     "openPanel"
                 ]
             },
-            "send-to-panel": {   
+            "send-to-panel": {
                 "methods": [
-                    "default.hello" 
+                    "default.hello"
                 ]
             }
         }
-    }, 
+    },
     "license": "ISC"
 }

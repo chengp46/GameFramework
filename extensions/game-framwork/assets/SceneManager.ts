@@ -2,7 +2,8 @@ import { _decorator, Component, macro, Node, UITransform, Prefab, error, resourc
 import { Message } from './MessageManager';
 import ResourceManager from './ResourceManager';
 import { LanguageManager } from './localized/LanguageManager';
-import { AudioSourceManager } from './AudioManager';
+import { AudioMgr, AudioSourceManager } from './AudioManager';
+import { DynamicResolutionAdapter } from './component/DynamicResolutionAdapter';
 const { ccclass, property } = _decorator;
 
 export enum ScreenEvent {
@@ -185,17 +186,54 @@ export class SceneManager {
         this.topLayer.addComponent(UITransform).contentSize = contentSize;
         this.topLayer.parent = this.sceneNode;
 
+        //this.sceneNode.addComponent(DynamicResolutionAdapter);
+
+        AudioMgr.init();
+
         if (!this.bGlobalEvent) {
             this.bGlobalEvent = true;
+
+            window.addEventListener("resize", () => {
+                // view.setDesignResolutionSize(window.innerWidth, window.innerHeight, 0);
+                // console.log(`窗口改变大小.....${screen.windowSize}    ${contentSize}`);
+                // // 获取浏览器窗口大小
+                // const width = window.innerWidth;
+                // const height = window.innerHeight;
+                // // 设置 Cocos 视图适配
+                // view.setDesignResolutionSize(1280, 720, view.getResolutionPolicy());
+                // // 重新适配场景
+                // director.root.resize(width, height);
+
+                // const width = window.innerWidth;
+                // const height = window.innerHeight;
+                // let x = width / 1280;
+                // let y = height / 720;
+                // this.sceneNode.scale = v3(x, y, 1);
+                // console.log(`x:${x} y:${y}`);
+
+                const frameSize = screen.windowSize;
+                const isLandscape = frameSize.width > frameSize.height;
+
+                if (isLandscape) {
+                    view.setDesignResolutionSize(1280, 720, ResolutionPolicy.EXACT_FIT);
+                } else {
+                    view.setDesignResolutionSize(720, 1280, ResolutionPolicy.EXACT_FIT);
+                }
+            
+                //director.root.resize(frameSize.width, frameSize.height);
+            });
+
 
             // 切换到前台事件
             game.on(Game.EVENT_SHOW, () => {
                 Message.dispatchEvent(ScreenEvent.EventShowAndHide, true);
+                console.log(`Game.EVENT_SHOW....................`);
             }, this);
 
             // 进入后台时触发的事件
             game.on(Game.EVENT_HIDE, () => {
                 Message.dispatchEvent(ScreenEvent.EventShowAndHide, false);
+                console.log(`Game.EVENT_HIDE....................`);
             }, this);
         }
 
@@ -233,7 +271,7 @@ export class SceneManager {
         newNode.parent = this.sceneLayer;
         newNode.active = false;
         let view = newNode.getComponent(viewType);
-        view.show();
+        view?.show();
         if (callback) {
             callback(view);
         }
