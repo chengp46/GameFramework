@@ -113,10 +113,10 @@ export abstract class UIDialog extends Component {
     }
 }
 
-type Consturctor = { new(...args: any[]): any };
+type Constructor<T = {}> = { new(...args: any[]): any };
 export type __TYPE__<T> = new (...args: any[]) => T;
 export function prefabResource(path: string, bundle: string = '') {
-    return <T extends Consturctor>(dialog: T) => {
+    return <T extends Constructor>(dialog: T) => {
         let uiRes = SceneMgr.ResourceMap.get(dialog.name);
         if (!uiRes) {
             uiRes = new UIResource();
