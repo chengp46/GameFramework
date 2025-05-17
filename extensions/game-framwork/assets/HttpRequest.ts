@@ -1,7 +1,6 @@
 // HttpManager.ts
 
 import { _decorator } from 'cc';
-import ResourceManager from './common/ResourceManager';
 const { ccclass } = _decorator;
 
 export class HttpResponse {

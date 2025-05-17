@@ -1,9 +1,10 @@
 import { assetManager, SpriteFrame, Texture2D, resources, Asset } from 'cc';
+import { __TYPE__ } from './SceneManager';
 
 export default class ResourceManager {
     // 加载本地资源
-    static loadLocal<T extends Asset>(path: string, callback: (asset: T) => void) {
-        resources.load(path, (err, asset: T) => {
+    static loadLocal<T extends Asset>(path: string, viewType: __TYPE__<T>, callback: (asset: T) => void) {
+        resources.load(path, viewType, (err, asset: T) => {
             if (err) {
                 console.error("本地资源加载失败", err);
                 callback(null);
@@ -14,20 +15,20 @@ export default class ResourceManager {
     }
 
     // 异步加载本地资源
-    static loadLocalAsync<T extends Asset>(path: string) {
+    static loadLocalAsync<T extends Asset>(path: string, viewType: __TYPE__<T>) {
         return new Promise<T>((resolve, reject) => {
-            ResourceManager.loadLocal(path, (asset: T) => {
+            ResourceManager.loadLocal(path, viewType, (asset: T) => {
                 resolve(asset);
             });
         });
     }
 
     // 加载本地其它包资源
-    static loadLocalOther<T extends Asset>(path: string, bundleName: string, callback: (asset: T) => void) {
+    static loadLocalOther<T extends Asset>(path: string, bundleName: string, viewType: __TYPE__<T>, callback: (asset: T) => void) {
         let bundle = assetManager.bundles.get(bundleName);
         if (!bundle) {
             ResourceManager.loadBundle(bundleName, (sBundle: any) => {
-                sBundle.load(path, (err, asset: T) => {
+                sBundle.load(path, viewType, (err, asset: T) => {
                     if (err) {
                         console.error("本地资源加载失败", err);
                         callback(null);
@@ -37,7 +38,7 @@ export default class ResourceManager {
                 });
             });
         } else {
-            bundle.load(path, (err, asset: T) => {
+            bundle.load(path, viewType, (err, asset: T) => {
                 if (err) {
                     console.error("本地资源加载失败", err);
                     callback(null);
@@ -49,9 +50,9 @@ export default class ResourceManager {
     }
 
     // 异步加载本地其它包资源
-    static loadLocalOtherAsync<T extends Asset>(path: string, bundleName: string) {
+    static loadLocalOtherAsync<T extends Asset>(path: string, bundleName: string, viewType: __TYPE__<T>) {
         return new Promise<T>((resolve, reject) => {
-            ResourceManager.loadLocalOther(path, bundleName, (asset: T) => {
+            ResourceManager.loadLocalOther(path, bundleName, viewType, (asset: T) => {
                 resolve(asset);
             });
         });

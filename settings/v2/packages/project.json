@@ -6,5 +6,10 @@
       "a7d79ca6-0742-4ef2-a50e-ea4f517350aa"
     ]
   },
-  "custom_joint_texture_layouts": []
+  "custom_joint_texture_layouts": [],
+  "general": {
+    "designResolution": {
+      "fitHeight": true
+    }
+  }
 }

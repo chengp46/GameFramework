@@ -14,7 +14,7 @@ class AudioSourceItem {
 }
 
 @ccclass('AudioSourceManager')
-export class AudioSourceManager extends Component {
+export class AudioSourceManager {
     // AudioSourceManager全局实例
     private static _instance: AudioSourceManager = null;
     // 当前音效场景ID
@@ -32,16 +32,7 @@ export class AudioSourceManager extends Component {
 
     public static get instance(): AudioSourceManager {
         if (!this._instance) {
-            let audioNode = find("AudioNode");
-            if (audioNode) {
-                this._instance = audioNode.getComponent(AudioSourceManager);
-            } else {
-                audioNode = new Node('AudioNode');
-                this._instance = audioNode.addComponent(AudioSourceManager);
-                // 使节点常驻，避免切换场景时被销毁 
-                audioNode.setParent(director.getScene());
-                director.addPersistRootNode(audioNode);
-            } 
+            this._instance = new AudioSourceManager();
         }
         return this._instance;
     }
@@ -87,14 +78,14 @@ export class AudioSourceManager extends Component {
     }
 
 
-    onLoad() {
+    initConfig() {
         // 初始化背景音乐 AudioSource
-        this.bgmSource = this.node.addComponent(AudioSource);
+        this.bgmSource = SceneMgr.SceneNode.addComponent(AudioSource);
         this.bgmSource.loop = true; // 背景音乐循环播放
         this.bgmSource.volume = 0.5; // 设置初始音量
 
         // 初始化音效 AudioSource
-        this.effectSource = this.node.addComponent(AudioSource);
+        this.effectSource = SceneMgr.SceneNode.addComponent(AudioSource);
         this.effectSource.loop = false; // 音效不循环
         this.effectSource.volume = 1.0; // 设置初始音量
 
@@ -102,7 +93,7 @@ export class AudioSourceManager extends Component {
         this.effectSource.node.on(AudioSource.EventType.ENDED, this.onAudioEnded, this);
     }
 
-    protected onDestroy(): void {
+    release(): void {
         this.effectSource.node.off(AudioSource.EventType.STARTED, this.onAudioStarted, this);
         this.effectSource.node.off(AudioSource.EventType.ENDED, this.onAudioEnded, this);
     }

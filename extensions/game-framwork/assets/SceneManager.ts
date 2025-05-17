@@ -1,8 +1,9 @@
-import { _decorator, Component, macro, Node, UITransform, Prefab, error, resources, instantiate, Button, v3, tween, Sprite, Color, isValid, size, Game, director, game, screen, view, Vec3, ResolutionPolicy, find } from 'cc';
+import { _decorator, Component, macro, Node, UITransform, Prefab, error, resources, instantiate, Button, v3, tween, Sprite, Color, isValid, size, Game, director, game, screen, view, Vec3, ResolutionPolicy, find, Canvas, Layers, Camera, gfx, renderer, Widget } from 'cc';
 import { Message } from './MessageManager';
 import ResourceManager from './ResourceManager';
 import { LanguageManager } from './localized/LanguageManager';
 import { AudioSourceManager } from './AudioManager';
+import { LayerUtil } from './utils/LayerUtil';
 const { ccclass, property } = _decorator;
 
 export enum ScreenEvent {
@@ -131,6 +132,8 @@ export function prefabResource(path: string, bundle: string = '') {
 export class SceneManager {
     static instance: SceneManager = new SceneManager();
     protected sceneNode!: Node;
+    protected cameraNode!: Node;
+    protected backgroundLayer!: Node;
     protected sceneLayer!: Node;
     protected popupLayer!: Node;
     protected topLayer!: Node;
@@ -157,6 +160,10 @@ export class SceneManager {
         return this.prefabResource;
     }
 
+    get Background() {
+        return this.backgroundLayer;
+    }
+
     // 设置游戏速度
     set PlaySpeed(value: number) {
         this.playSpeed = value;
@@ -168,40 +175,82 @@ export class SceneManager {
 
     initScene() {
         let scene = director.getScene();
+        // 场景节点
         this.sceneNode = new Node;
         this.sceneNode.name = 'Scene';
         this.sceneNode.parent = scene;
+        this.SceneNode.addComponent(Canvas);
         let contentSize = size(1280, 720);
+        this.SceneNode.getComponent(UITransform).contentSize = contentSize;
+        this.cameraNode = new Node;
+        this.cameraNode.addComponent(Camera);
+        this.cameraNode.name = "Camera";
+        this.cameraNode.parent = this.sceneNode;
+        let camera = this.cameraNode.getComponent(Camera);
+        camera.visibility = (1 << Layers.nameToLayer("UI_3D")) | (1 << Layers.nameToLayer("UI_2D"));
+        camera.clearFlags = gfx.ClearFlagBit.DEPTH;
+        camera.projection = renderer.scene.CameraProjection.ORTHO;
+        camera.far = 2000;
+        this.SceneNode.getComponent(Canvas).cameraComponent = camera;
+        // 背景层
+        this.backgroundLayer = new Node;
+        this.backgroundLayer.name = 'BgView';
+        this.backgroundLayer.addComponent(UITransform).contentSize = contentSize;
+        this.backgroundLayer.parent = this.sceneNode;
+        let widget = this.backgroundLayer.addComponent(Widget);
+        this.backgroundLayer.addComponent(Sprite);
+        // 游戏场景层
         this.sceneLayer = new Node;
         this.sceneLayer.name = 'GameView';
         this.sceneLayer.addComponent(UITransform).contentSize = contentSize;
         this.sceneLayer.parent = this.sceneNode;
+        // 弹窗层
         this.popupLayer = new Node;
         this.popupLayer.name = 'PopupView';
         this.popupLayer.addComponent(UITransform).contentSize = contentSize;
         this.popupLayer.parent = this.sceneNode;
+        // 最顶层
         this.topLayer = new Node;
         this.topLayer.name = 'TopView';
         this.topLayer.addComponent(UITransform).contentSize = contentSize;
         this.topLayer.parent = this.sceneNode;
-
+        LayerUtil.setNodeLayer(LayerUtil.UI_2D, this.SceneNode);
         if (!this.bGlobalEvent) {
             this.bGlobalEvent = true;
 
             // 切换到前台事件
             game.on(Game.EVENT_SHOW, () => {
                 Message.dispatchEvent(ScreenEvent.EventShowAndHide, true);
-            }, this);
+            });
 
             // 进入后台时触发的事件
             game.on(Game.EVENT_HIDE, () => {
                 Message.dispatchEvent(ScreenEvent.EventShowAndHide, false);
-            }, this);
+            });
+
+            screen.on('window-resize', this.onWindowResize, this);
         }
 
         director.tick = (dt: number) => {
             this.cacheTick.call(director, dt * this.playSpeed);
         };
+    }
+
+    releaseScene() {
+        screen.off('window-resize', this.onWindowResize, this);
+    }
+
+    onWindowResize(width: number, height: number) {
+        const canvas = this.SceneNode.getComponent(Canvas);
+        if (canvas) {
+            view.setDesignResolutionSize(1280, 720, view.getResolutionPolicy());
+        }
+        const screenSize = view.getVisibleSize();
+        console.log(`窗口可视区域宽度: ${screenSize.width}, 窗口可视区域高度: ${screenSize.height}  ${screen.windowSize}`);
+        console.log(`onWindowResize width:${width} height:${height}`);
+        this.backgroundLayer.getComponent(UITransform).contentSize = screenSize;
+        this.popupLayer.getComponent(UITransform).contentSize = screenSize;
+
     }
 
     changeView<T extends UIView>(viewType: __TYPE__<T>, callback?: (view: T) => T | void) {
@@ -213,12 +262,12 @@ export class SceneManager {
         let prefabRes = this.PrefabResource.get(resource.resPath);
         if (!prefabRes) {
             if (0 == resource.bundle.length) {
-                ResourceManager.loadLocal(resource.resPath, (prefab: Prefab) => {
+                ResourceManager.loadLocal(resource.resPath, Prefab, (prefab: Prefab) => {
                     this.prefabResource.set(viewType.name, prefab);
                     this.showView(prefab, viewType, callback);
                 });
             } else {
-                ResourceManager.loadLocalOther(resource.resPath, resource.bundle, (prefab: Prefab) => {
+                ResourceManager.loadLocalOther(resource.resPath, resource.bundle, Prefab, (prefab: Prefab) => {
                     this.prefabResource.set(viewType.name, prefab);
                     this.showView(prefab, viewType, callback);
                 });
@@ -255,12 +304,12 @@ export class SceneManager {
         let prefabRes = this.PrefabResource.get(dialogType.name);
         if (!prefabRes) {
             if (0 == resource.bundle.length) {
-                ResourceManager.loadLocal(resource.resPath, (prefab: Prefab) => {
+                ResourceManager.loadLocal(resource.resPath, Prefab, (prefab: Prefab) => {
                     this.prefabResource.set(dialogType.name, prefab);
                     this.showDialog(prefab, dialogType, callback);
                 });
             } else {
-                ResourceManager.loadLocalOther(resource.resPath, resource.bundle, (prefab: Prefab) => {
+                ResourceManager.loadLocalOther(resource.resPath, resource.bundle, Prefab, (prefab: Prefab) => {
                     this.prefabResource.set(dialogType.name, prefab);
                     this.showDialog(prefab, dialogType, callback);
                 });

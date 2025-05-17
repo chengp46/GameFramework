@@ -72,6 +72,20 @@ export interface ILocalizedConfig {
     remark?: string;
 }
 
+export interface ILocalizedImage {
+    key?: string;
+    path?: string;
+    name?: string;
+}
+
+export interface ILocalizedAudio {
+    key?: string;
+    path?: string;
+    name?: string;
+    bLanguage?: number;
+    bSex?: number;
+}
+
 /**
  * json、图片和声音资源配置约定在resources 本地bundle包下
  * Localized_text.json Localized_image.json Localized_audio.json 
@@ -80,8 +94,8 @@ export interface ILocalizedConfig {
 export class LanguageManager {
     public static _instance: LanguageManager ;
     private textData: Map<string, ILocalizedConfig> = new Map();
-    private imageData: Map<string, ILocalizedConfig> = new Map();
-    private audioData: Map<string, ILocalizedConfig> = new Map();
+    private imageData: Map<string, ILocalizedImage> = new Map();
+    private audioData: Map<string, ILocalizedAudio> = new Map();
     private currentLanguage = LanguageType.ZH;
     private imageConfigPath: string = 'texture/';
     private audioConfigPath: string = 'sounds/';

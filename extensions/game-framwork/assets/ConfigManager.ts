@@ -16,7 +16,7 @@ export class ConfigManager {
     }
 
     async loadConfig() {
-        ResourceManager.loadLocal("config/gameConfig", (assert:JsonAsset)=>{
+        ResourceManager.loadLocal("config/gameConfig", JsonAsset, (assert:JsonAsset)=>{
             this.configData = assert.json;
             console.log(this.configData);
         });

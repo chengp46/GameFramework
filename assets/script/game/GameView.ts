@@ -1,4 +1,4 @@
-import { _decorator, Canvas, Component, log, Node, Sprite, UITransform, view, screen, ResolutionPolicy, Label } from 'cc';
+import { _decorator, Canvas, Component, log, Node, Sprite, UITransform, view, screen, ResolutionPolicy, Label, SpriteFrame, resources } from 'cc';
 import { SetDialog } from './SetDialog';
 import * as protobuf from "./network/proto/player.js";
 import { prefabResource, SceneMgr, UIView } from '../../../extensions/game-framwork/assets/SceneManager';
@@ -6,7 +6,8 @@ import { AudioMgr } from '../../../extensions/game-framwork/assets/AudioManager'
 import { ConfigMgr } from '../../../extensions/game-framwork/assets/ConfigManager';
 import HttpRequest from '../../../extensions/game-framwork/assets/HttpRequest';
 import { SceneOrientationAdapter } from '../../../extensions/game-framwork/assets/component/SceneOrientationAdapter';
-const {Player } = protobuf?.default;
+import ResourceManager from '../../../extensions/game-framwork/assets/ResourceManager';
+const { Player } = protobuf?.default;
 
 
 const { ccclass, property } = _decorator;
@@ -23,29 +24,32 @@ export class GameView extends UIView {
     @property(Label)
     label: Label | null = null;
 
+    @property(SpriteFrame)
+    bg: SpriteFrame = null;
+
     start() {
         AudioMgr.SceneID = 10;
         AudioMgr.register(eSoundConfig.GIRL, "sounds/Girl");
 
-        // 获取屏幕的宽度和高度
-        const screenSize = view.getVisibleSize();
-        console.log(`窗口可视区域宽度: ${screenSize.width}, 窗口可视区域高度: ${screenSize.height}`);
+        // // 获取屏幕的宽度和高度
+        // const screenSize = view.getVisibleSize();
+        // console.log(`窗口可视区域宽度: ${screenSize.width}, 窗口可视区域高度: ${screenSize.height}`);
 
-        // 获取设计分辨率的宽度和高度
-        const designResolution = view.getDesignResolutionSize();
-        console.log(`设计分辨率的宽度: ${designResolution.width}, 设计分辨率的高度: ${designResolution.height}`);
+        // // 获取设计分辨率的宽度和高度
+        // const designResolution = view.getDesignResolutionSize();
+        // console.log(`设计分辨率的宽度: ${designResolution.width}, 设计分辨率的高度: ${designResolution.height}`);
 
-        // 获取视口的宽度和高度
-        const viewportSize = view.getViewportRect();
-        console.log(`Viewport Width: ${viewportSize.width}, Viewport Height: ${viewportSize.height}`);
+        // // 获取视口的宽度和高度
+        // const viewportSize = view.getViewportRect();
+        // console.log(`Viewport Width: ${viewportSize.width}, Viewport Height: ${viewportSize.height}`);
 
-        // 获取设备像素比
-        const devicePixelRatio = screen.devicePixelRatio;
-        console.log(`Device Pixel Ratio: ${devicePixelRatio}`);
+        // // 获取设备像素比
+        // const devicePixelRatio = screen.devicePixelRatio;
+        // console.log(`Device Pixel Ratio: ${devicePixelRatio}`);
 
-        // 获取 Canvas 的宽度和高度
-        const canvasSize = screen.windowSize;
-        console.log(`Canvas Width: ${canvasSize.width}, Canvas Height: ${canvasSize.height}`);
+        // // 获取 Canvas 的宽度和高度
+        // const canvasSize = screen.windowSize;
+        // console.log(`Canvas Width: ${canvasSize.width}, Canvas Height: ${canvasSize.height}`);
 
         console.log(`config ${ConfigMgr.get("global").url}`)
         // // 监听窗口大小变化
@@ -58,10 +62,23 @@ export class GameView extends UIView {
         //     // 设置设计分辨率，并指定适配策略
         //     view.setDesignResolutionSize(newWidth, newHeight, ResolutionPolicy.SHOW_ALL);
         // }, this);
-        console.log(screen);
+        //console.log(screen);
 
         // let text = this.label?.getComponent(L10nLabel);
         // text.label.string = 'hello world';
+
+
+        // ResourceManager.loadLocal("textures/BG", SpriteFrame, (asset: SpriteFrame) => {
+        //     let bg = SceneMgr.Background.getComponent(Sprite);
+        //     if (bg) {
+        //         bg.spriteFrame = asset;
+        //     }
+        // });
+
+        let bg = SceneMgr.Background.getComponent(Sprite);
+        if (bg) {
+            bg.spriteFrame = this.bg;
+        }
 
 
         // 创建 Protobuf 对象
