@@ -2,7 +2,6 @@ import { _decorator, assetManager, Component, JsonAsset, Label, resources } from
 const { ccclass, property, executeInEditMode, disallowMultiple, requireComponent, executionOrder } = _decorator;
 import { LanguageMgr, LanguageManager } from './LanguageManager'
 import { Message } from '../MessageManager';
-import ResourceManager from '../ResourceManager';
 import { EDITOR } from 'cc/env';
 
 @ccclass('L10nLabel')
