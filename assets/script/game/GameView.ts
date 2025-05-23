@@ -6,7 +6,6 @@ import { AudioMgr } from '../../../extensions/game-framwork/assets/AudioManager'
 import { ConfigMgr } from '../../../extensions/game-framwork/assets/ConfigManager';
 import HttpRequest from '../../../extensions/game-framwork/assets/HttpRequest';
 import { SceneOrientationAdapter } from '../../../extensions/game-framwork/assets/component/SceneOrientationAdapter';
-import ResourceManager from '../../../extensions/game-framwork/assets/ResourceManager';
 const { Player } = protobuf?.default;
 
 
@@ -15,8 +14,6 @@ const { ccclass, property } = _decorator;
 export enum eSoundConfig {
     GIRL = 1,
 }
-
-
 
 @ccclass('GameView')
 @prefabResource("prefabs/gameView")
@@ -51,7 +48,8 @@ export class GameView extends UIView {
         // const canvasSize = screen.windowSize;
         // console.log(`Canvas Width: ${canvasSize.width}, Canvas Height: ${canvasSize.height}`);
 
-        console.log(`config ${ConfigMgr.get("global").url}`)
+        let global = ConfigMgr.getValue("gameConfig", "global");
+        console.log(`config: ${global?.server}`);
         // // 监听窗口大小变化
         // view.on('resize', () => {
         //     const windowSize = view.getVisibleSize();
@@ -75,10 +73,10 @@ export class GameView extends UIView {
         //     }
         // });
 
-        let bg = SceneMgr.Background.getComponent(Sprite);
-        if (bg) {
-            bg.spriteFrame = this.bg;
-        }
+        // let bg = SceneMgr.Background.getComponent(Sprite);
+        // if (bg) {
+        //     bg.spriteFrame = this.bg;
+        // }
 
 
         // 创建 Protobuf 对象

@@ -10,7 +10,7 @@ const { ccclass, property } = _decorator;
 export class MainScene extends Component {
     start() {
         SceneMgr.initScene();
-        ConfigMgr.loadConfig();
+        ConfigMgr.loadAllConfigs();
         AudioMgr.initConfig();
         LanguageMgr.initConfig();
         SceneMgr.changeView(GameView);

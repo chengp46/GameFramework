@@ -1,8 +1,8 @@
 // AudioSourceManager.ts
 
 import { _decorator, Component, AudioSource, AudioClip, Node, director, find } from 'cc';
-import ResourceManager from './ResourceManager';
 import { SceneMgr } from './SceneManager';
+import { ResLoader } from './ResLoader';
 const { ccclass, property } = _decorator;
 
 class AudioSourceItem {
@@ -114,16 +114,15 @@ export class AudioSourceManager {
                 return;
             }
         }
+        if (0 == bundle.length) {
+            bundle = "resources";
+        }
         let sourceItem = new AudioSourceItem();
         sourceItem.sourceId = sourceId;
         sourceItem.srcPath = srcPath;
         sourceItem.bundle = bundle;
         sourceItem.sceneId = this.soundSceneID;
-        if (sourceItem.bundle != '') {
-            sourceItem.audio = await ResourceManager.loadLocalOtherAsync(sourceItem.srcPath, sourceItem.bundle);
-        } else {
-            sourceItem.audio = await ResourceManager.loadLocalAsync(sourceItem.srcPath);
-        }
+        sourceItem.audio = await ResLoader.load(sourceItem.srcPath, AudioClip, bundle);
         this.sourceList.push(sourceItem);
     }
 
@@ -131,7 +130,7 @@ export class AudioSourceManager {
         let sList: AudioSourceItem[] = [];
         for (let i = 0; i < this.sourceList.length; i++) {
             if (this.sourceList[i].sceneId == sceneId) {
-                ResourceManager.releaseAsset(this.sourceList[i].audio);
+                ResLoader.release(this.sourceList[i].srcPath, this.sourceList[i].bundle);
             }
             else {
                 sList.push(this.sourceList[i]);
@@ -150,12 +149,8 @@ export class AudioSourceManager {
     }
 
     // 设置背景音乐
-    public async setBackgroundMusic(srcPath: string, bundle: string = "", callback:()=>void) {
-        if (bundle !== '') {
-            this.bgmSource.clip = await ResourceManager.loadLocalOtherAsync(srcPath, bundle);
-        } else {
-            this.bgmSource.clip = await ResourceManager.loadLocalAsync(srcPath);
-        }
+    public async setBackgroundMusic(srcPath: string, bundle: string = "", callback: () => void) {
+        this.bgmSource.clip = await ResLoader.load(srcPath, AudioClip, bundle);
         callback && callback();
     }
 
@@ -216,7 +211,7 @@ export class AudioSourceManager {
     public resume() {
         if (this.bgmSource) {
             this.bgmSource.play();
-        }     
+        }
     }
 
     /**

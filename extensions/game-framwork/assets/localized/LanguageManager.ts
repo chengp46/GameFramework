@@ -1,5 +1,4 @@
 import { _decorator, Component, resources, TextAsset, director, JsonAsset, SpriteFrame, Sprite, Enum, find, Node, game } from 'cc';
-import ResourceManager from '../ResourceManager'
 import { Message } from '../MessageManager';
 import { SceneMgr } from '../SceneManager';
 
@@ -195,11 +194,11 @@ export class LanguageManager {
         }
         let data = this.imageData.get(key);
         let filePath = this.ImageConfigPath + this.getLocalizedValue(data);
-        ResourceManager.loadLocal(filePath, (asset: SpriteFrame) => {
-            if (asset) {
-                sprite.spriteFrame = asset;
-            }
-        });
+        // ResourceManager.loadLocal(filePath, (asset: SpriteFrame) => {
+        //     if (asset) {
+        //         sprite.spriteFrame = asset;
+        //     }
+        // });
     }
 
     // **获取音频路径**

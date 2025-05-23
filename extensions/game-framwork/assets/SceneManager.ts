@@ -1,9 +1,10 @@
-import { _decorator, Component, macro, Node, UITransform, Prefab, error, resources, instantiate, Button, v3, tween, Sprite, Color, isValid, size, Game, director, game, screen, view, Vec3, ResolutionPolicy, find, Canvas, Layers, Camera, gfx, renderer, Widget } from 'cc';
+import { _decorator, Component, macro, Node, UITransform, Prefab, error, resources, instantiate, Button, v3, tween, Sprite, Color, isValid, size, Game, director, game, screen, view, Vec3, ResolutionPolicy, find, Canvas, Layers, Camera, gfx, renderer, Widget, SpriteFrame, UIOpacity } from 'cc';
 import { Message } from './MessageManager';
-import ResourceManager from './ResourceManager';
 import { LanguageManager } from './localized/LanguageManager';
 import { AudioSourceManager } from './AudioManager';
 import { LayerUtil } from './utils/LayerUtil';
+import { ResLoader } from './ResLoader';
+import { ImageUtil } from './utils/ImageUtil';
 const { ccclass, property } = _decorator;
 
 export enum ScreenEvent {
@@ -47,9 +48,6 @@ export abstract class UIView extends Component {
 }
 
 export abstract class UIDialog extends Component {
-    @property({ type: Node, displayName: '背景遮罩' })
-    backgroundMask: Node | null = null;
-
     @property({ type: Node, displayName: '背景框' })
     background: Node | null = null;
 
@@ -60,7 +58,6 @@ export abstract class UIDialog extends Component {
     protected initialScale: Vec3 = new Vec3(0, 0, 1);
 
     protected onLoad(): void {
-        this.backgroundMask?.on(Node.EventType.TOUCH_START, this.onMaskClick, this);
         this.background?.on(Node.EventType.TOUCH_START, this.onDialogClick, this);
         this.closeBtn?.node.on(Button.EventType.CLICK, this.onClose, this);
     }
@@ -71,27 +68,20 @@ export abstract class UIDialog extends Component {
     }
 
     showDialog() {
-        if (this.backgroundMask) {
-            this.backgroundMask!.active = false;
-        }
+        SceneMgr.MaskClick = true;
+        SceneMgr.showMask(true, ()=>{
+            this.hideDialog();
+        });
         this.node.active = true;
         if (this.background) {
             this.background.scale = this.initialScale;
             this.background.active = true;
-            tween(this.background).to(0.2, { scale: v3(1, 1, 1) }, { easing: "backOut" })
-                .call(() => {
-                    if (this.backgroundMask) {
-                        this.backgroundMask!.active = true;
-                    }
-                }).start();
+            tween(this.background).to(0.2, { scale: v3(1, 1, 1) }, { easing: "backOut" }).start();
         }
     }
 
     hideDialog() {
-        if (this.backgroundMask) {
-            let sprite = this.backgroundMask!.getComponent(Sprite);
-            sprite.color = new Color(0, 0, 0, 0);
-        }
+        SceneMgr.showMask(false);
         if (this.background) {
             this.background.active = true;
             tween(this.node).to(0.2, { scale: this.initialScale }, { easing: "backIn" })
@@ -117,6 +107,9 @@ export abstract class UIDialog extends Component {
 type Constructor<T = {}> = { new(...args: any[]): any };
 export type __TYPE__<T> = new (...args: any[]) => T;
 export function prefabResource(path: string, bundle: string = '') {
+    if (0 == bundle.length) {
+        bundle = "resources";
+    }
     return <T extends Constructor>(dialog: T) => {
         let uiRes = SceneMgr.ResourceMap.get(dialog.name);
         if (!uiRes) {
@@ -144,6 +137,8 @@ export class SceneManager {
     // 游戏运行速度
     protected playSpeed = 1;
     protected cacheTick = director.tick;
+    // 对话框遮罩是否响应
+    protected bMaskClick = false;
 
     protected constructor() {
     }
@@ -164,6 +159,18 @@ export class SceneManager {
         return this.backgroundLayer;
     }
 
+    get Dialog() {
+        return this.popupLayer;
+    }
+
+    set MaskClick(val: boolean) {
+        this.bMaskClick = val;
+    }
+
+    get MaskClick() {
+        return this.MaskClick;
+    }
+
     // 设置游戏速度
     set PlaySpeed(value: number) {
         this.playSpeed = value;
@@ -180,8 +187,9 @@ export class SceneManager {
         this.sceneNode.name = 'Scene';
         this.sceneNode.parent = scene;
         this.SceneNode.addComponent(Canvas);
-        let contentSize = size(1280, 720);
-        this.SceneNode.getComponent(UITransform).contentSize = contentSize;
+        const designSize = view.getDesignResolutionSize();
+        console.log(`设计分辨率: ${designSize.width} x ${designSize.height}`);
+        this.SceneNode.getComponent(UITransform).contentSize = designSize;
         this.cameraNode = new Node;
         this.cameraNode.addComponent(Camera);
         this.cameraNode.name = "Camera";
@@ -195,24 +203,33 @@ export class SceneManager {
         // 背景层
         this.backgroundLayer = new Node;
         this.backgroundLayer.name = 'BgView';
-        this.backgroundLayer.addComponent(UITransform).contentSize = contentSize;
+        this.backgroundLayer.addComponent(UITransform).contentSize = designSize;
         this.backgroundLayer.parent = this.sceneNode;
         let widget = this.backgroundLayer.addComponent(Widget);
         this.backgroundLayer.addComponent(Sprite);
         // 游戏场景层
         this.sceneLayer = new Node;
         this.sceneLayer.name = 'GameView';
-        this.sceneLayer.addComponent(UITransform).contentSize = contentSize;
+        this.sceneLayer.addComponent(UITransform).contentSize = designSize;
         this.sceneLayer.parent = this.sceneNode;
         // 弹窗层
         this.popupLayer = new Node;
         this.popupLayer.name = 'PopupView';
-        this.popupLayer.addComponent(UITransform).contentSize = contentSize;
+        this.popupLayer.addComponent(UITransform).contentSize = designSize;
         this.popupLayer.parent = this.sceneNode;
+        const maskNode = new Node("maskNode");
+        maskNode.parent = this.popupLayer;
+        maskNode.addComponent(UIOpacity).opacity = 80;
+        let mask = maskNode.addComponent(Sprite);
+        mask.spriteFrame = ImageUtil.createPureColorSpriteFrame(Color.BLACK);
+        mask.sizeMode = 0;
+        maskNode.getComponent(UITransform).contentSize = designSize;
+        maskNode.active = false;
+
         // 最顶层
         this.topLayer = new Node;
         this.topLayer.name = 'TopView';
-        this.topLayer.addComponent(UITransform).contentSize = contentSize;
+        this.topLayer.addComponent(UITransform).contentSize = designSize;
         this.topLayer.parent = this.sceneNode;
         LayerUtil.setNodeLayer(LayerUtil.UI_2D, this.SceneNode);
         if (!this.bGlobalEvent) {
@@ -245,11 +262,14 @@ export class SceneManager {
         if (canvas) {
             view.setDesignResolutionSize(1280, 720, view.getResolutionPolicy());
         }
+        //console.log(`设计分辨率: ${designSize.width} x ${designSize.height}`);
         const screenSize = view.getVisibleSize();
         console.log(`窗口可视区域宽度: ${screenSize.width}, 窗口可视区域高度: ${screenSize.height}  ${screen.windowSize}`);
         console.log(`onWindowResize width:${width} height:${height}`);
-        this.backgroundLayer.getComponent(UITransform).contentSize = screenSize;
-        this.popupLayer.getComponent(UITransform).contentSize = screenSize;
+        const designSize = view.getDesignResolutionSize();
+        let xScale = designSize.width / screen.windowSize.width;
+        let yScale = designSize.height / screen.windowSize.height;
+        this.popupLayer.scale = v3(xScale, yScale, 1);
 
     }
 
@@ -261,17 +281,12 @@ export class SceneManager {
         }
         let prefabRes = this.PrefabResource.get(resource.resPath);
         if (!prefabRes) {
-            if (0 == resource.bundle.length) {
-                ResourceManager.loadLocal(resource.resPath, Prefab, (prefab: Prefab) => {
-                    this.prefabResource.set(viewType.name, prefab);
-                    this.showView(prefab, viewType, callback);
-                });
-            } else {
-                ResourceManager.loadLocalOther(resource.resPath, resource.bundle, Prefab, (prefab: Prefab) => {
-                    this.prefabResource.set(viewType.name, prefab);
-                    this.showView(prefab, viewType, callback);
-                });
-            }
+            let func = async () => {
+                let prefab = await ResLoader.load(resource.resPath, Prefab, resource.bundle);
+                this.prefabResource.set(viewType.name, prefab);
+                this.showView(prefab, viewType, callback);
+            };
+            func();
         } else {
             this.showView(prefabRes, viewType, callback);
         }
@@ -303,17 +318,12 @@ export class SceneManager {
         }
         let prefabRes = this.PrefabResource.get(dialogType.name);
         if (!prefabRes) {
-            if (0 == resource.bundle.length) {
-                ResourceManager.loadLocal(resource.resPath, Prefab, (prefab: Prefab) => {
-                    this.prefabResource.set(dialogType.name, prefab);
-                    this.showDialog(prefab, dialogType, callback);
-                });
-            } else {
-                ResourceManager.loadLocalOther(resource.resPath, resource.bundle, Prefab, (prefab: Prefab) => {
-                    this.prefabResource.set(dialogType.name, prefab);
-                    this.showDialog(prefab, dialogType, callback);
-                });
-            }
+            let func = async () => {
+                let prefab = await ResLoader.load(resource.resPath, Prefab, resource.bundle);
+                this.prefabResource.set(dialogType.name, prefab);
+                this.showDialog(prefab, dialogType, callback);
+            };
+            func();
         } else {
             this.showDialog(prefabRes, dialogType, callback);
         }
@@ -348,6 +358,29 @@ export class SceneManager {
 
     closeAllTopView() {
         this.topLayer?.removeAllChildren();
+    }
+
+    setSpriteFrame(url: string, sprite: Sprite, bundle: string = "resources") {
+        let callback = async () => {
+            let spriteFrame = await ResLoader.load(url, SpriteFrame, bundle);
+            sprite.spriteFrame = spriteFrame;
+        };
+        callback();
+    }
+
+    showMask(show: boolean, callback?: () => void) {
+        let mask = this.popupLayer.getChildByName("maskNode");
+        if (null == mask) {
+            return;
+        }
+        if (show) {
+            mask.active = true;
+            if (this.bMaskClick && callback) {
+                mask.once(Node.EventType.TOUCH_START, callback);
+            }
+        } else {
+            mask.active = false;
+        }
     }
 }
 
