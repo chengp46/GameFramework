@@ -125,8 +125,6 @@ export function prefabResource(path: string, bundle: string = '') {
 export class SceneManager {
     static instance: SceneManager = new SceneManager();
     protected sceneNode!: Node;
-    protected cameraNode!: Node;
-    protected backgroundLayer!: Node;
     protected sceneLayer!: Node;
     protected popupLayer!: Node;
     protected topLayer!: Node;
@@ -155,8 +153,8 @@ export class SceneManager {
         return this.prefabResource;
     }
 
-    get Background() {
-        return this.backgroundLayer;
+    get Scene() {
+        return this.sceneLayer;
     }
 
     get Dialog() {
@@ -190,26 +188,10 @@ export class SceneManager {
         const designSize = view.getDesignResolutionSize();
         console.log(`设计分辨率: ${designSize.width} x ${designSize.height}`);
         this.SceneNode.getComponent(UITransform).contentSize = designSize;
-        this.cameraNode = new Node;
-        this.cameraNode.addComponent(Camera);
-        this.cameraNode.name = "Camera";
-        this.cameraNode.parent = this.sceneNode;
-        let camera = this.cameraNode.getComponent(Camera);
-        camera.visibility = (1 << Layers.nameToLayer("UI_3D")) | (1 << Layers.nameToLayer("UI_2D"));
-        camera.clearFlags = gfx.ClearFlagBit.DEPTH;
-        camera.projection = renderer.scene.CameraProjection.ORTHO;
-        camera.far = 2000;
-        this.SceneNode.getComponent(Canvas).cameraComponent = camera;
-        // 背景层
-        this.backgroundLayer = new Node;
-        this.backgroundLayer.name = 'BgView';
-        this.backgroundLayer.addComponent(UITransform).contentSize = designSize;
-        this.backgroundLayer.parent = this.sceneNode;
-        let widget = this.backgroundLayer.addComponent(Widget);
-        this.backgroundLayer.addComponent(Sprite);
-        // 游戏场景层
+
+        // 场景层
         this.sceneLayer = new Node;
-        this.sceneLayer.name = 'GameView';
+        this.sceneLayer.name = 'SceneView';
         this.sceneLayer.addComponent(UITransform).contentSize = designSize;
         this.sceneLayer.parent = this.sceneNode;
         // 弹窗层
@@ -219,19 +201,20 @@ export class SceneManager {
         this.popupLayer.parent = this.sceneNode;
         const maskNode = new Node("maskNode");
         maskNode.parent = this.popupLayer;
-        maskNode.addComponent(UIOpacity).opacity = 80;
+        maskNode.addComponent(UITransform).contentSize = designSize;
+        maskNode.addComponent(UIOpacity).opacity = 50;
         let mask = maskNode.addComponent(Sprite);
         mask.spriteFrame = ImageUtil.createPureColorSpriteFrame(Color.BLACK);
         mask.sizeMode = 0;
         maskNode.getComponent(UITransform).contentSize = designSize;
+        LayerUtil.setNodeLayer(LayerUtil.UI_2D, maskNode);
         maskNode.active = false;
-
         // 最顶层
         this.topLayer = new Node;
         this.topLayer.name = 'TopView';
         this.topLayer.addComponent(UITransform).contentSize = designSize;
         this.topLayer.parent = this.sceneNode;
-        LayerUtil.setNodeLayer(LayerUtil.UI_2D, this.SceneNode);
+        LayerUtil.setNodeLayer(LayerUtil.UI_2D, this.topLayer);
         if (!this.bGlobalEvent) {
             this.bGlobalEvent = true;
 

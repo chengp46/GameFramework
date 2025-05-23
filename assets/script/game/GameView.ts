@@ -6,6 +6,7 @@ import { AudioMgr } from '../../../extensions/game-framwork/assets/AudioManager'
 import { ConfigMgr } from '../../../extensions/game-framwork/assets/ConfigManager';
 import HttpRequest from '../../../extensions/game-framwork/assets/HttpRequest';
 import { SceneOrientationAdapter } from '../../../extensions/game-framwork/assets/component/SceneOrientationAdapter';
+import { LayerUtil } from '../../../extensions/game-framwork/assets/utils/LayerUtil';
 const { Player } = protobuf?.default;
 
 
@@ -73,11 +74,13 @@ export class GameView extends UIView {
         //     }
         // });
 
-        // let bg = SceneMgr.Background.getComponent(Sprite);
+        // LayerUtil.setNodeLayer(LayerUtil.UI_2D, SceneMgr.Scene);
+        // let bg = SceneMgr.Scene.addComponent(Sprite);
         // if (bg) {
         //     bg.spriteFrame = this.bg;
         // }
-
+        // let bg = SceneMgr.Background.getComponent(Sprite);
+        // SceneMgr.setSpriteFrame("textures/bg2", bg);
 
         // 创建 Protobuf 对象
         let playerData = Player.create({ name: "你好呀", level: 10 });
