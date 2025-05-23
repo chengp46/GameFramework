@@ -1,4 +1,4 @@
-import { _decorator, Canvas, Component, log, Node, Sprite, UITransform, view, screen, ResolutionPolicy, Label, SpriteFrame, resources } from 'cc';
+import { _decorator, Canvas, Component, log, Node, Sprite, UITransform, view, screen, ResolutionPolicy, Label, SpriteFrame, resources, input, Input, EventKeyboard, KeyCode } from 'cc';
 import { SetDialog } from './SetDialog';
 import * as protobuf from "./network/proto/player.js";
 import { prefabResource, SceneMgr, UIView } from '../../../extensions/game-framwork/assets/SceneManager';
@@ -24,6 +24,9 @@ export class GameView extends UIView {
 
     @property(SpriteFrame)
     bg: SpriteFrame = null;
+
+    @property({ type: Node, displayName: "摄像机节点" })
+    camera: Node = null;
 
     start() {
         AudioMgr.SceneID = 10;
@@ -93,9 +96,33 @@ export class GameView extends UIView {
         let decodedPlayer = Player.decode(buffer);
         console.log("Decoded Player:", decodedPlayer);
 
+        input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+        //input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
+
     }
 
     update(deltaTime: number) {
+    }
+
+    protected onDestroy(): void {
+        input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+    }
+
+    onKeyDown(event: EventKeyboard) {
+        switch (event.keyCode) {
+            case KeyCode.KEY_A:
+                this.camera.x += 0.1;
+                break;
+            case KeyCode.KEY_D:
+                this.camera.x -= 0.1;
+                break;
+            case KeyCode.KEY_W:
+                this.camera.z += 0.1;
+                break;
+            case KeyCode.KEY_S:
+                this.camera.z -= 0.1;
+                break;
+        }
     }
 
     onButtonClick(event: Event, customData: string) {
