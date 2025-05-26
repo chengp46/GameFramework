@@ -28,6 +28,9 @@ export class GameView extends UIView {
     @property({ type: Node, displayName: "摄像机节点" })
     camera: Node = null;
 
+    @property({ type: Sprite, displayName: "背景" })
+    background: Sprite = null;
+
     start() {
         AudioMgr.SceneID = 10;
         AudioMgr.register(eSoundConfig.GIRL, "sounds/Girl");
@@ -84,6 +87,8 @@ export class GameView extends UIView {
         // }
         // let bg = SceneMgr.Background.getComponent(Sprite);
         // SceneMgr.setSpriteFrame("textures/bg2", bg);
+
+        SceneMgr.setSpriteFrame("textures/bg2/spriteFrame", this.background);
 
         // 创建 Protobuf 对象
         let playerData = Player.create({ name: "你好呀", level: 10 });

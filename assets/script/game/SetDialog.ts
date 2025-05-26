@@ -12,6 +12,11 @@ export class SetDialog extends UIDialog {
     update(deltaTime: number) {
         
     }
+
+    showDialog() {
+        super.showDialog();
+        SceneMgr.MaskClick = false;
+    }
 }
 
 

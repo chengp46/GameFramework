@@ -69,8 +69,10 @@ export abstract class UIDialog extends Component {
 
     showDialog() {
         SceneMgr.MaskClick = true;
-        SceneMgr.showMask(true, ()=>{
-            this.hideDialog();
+        SceneMgr.showMask(true, () => {
+            if (SceneMgr.MaskClick) {
+                this.hideDialog();
+            }
         });
         this.node.active = true;
         if (this.background) {
@@ -166,7 +168,7 @@ export class SceneManager {
     }
 
     get MaskClick() {
-        return this.MaskClick;
+        return this.bMaskClick;
     }
 
     // 设置游戏速度
@@ -243,16 +245,16 @@ export class SceneManager {
     onWindowResize(width: number, height: number) {
         const canvas = this.SceneNode.getComponent(Canvas);
         if (canvas) {
-            view.setDesignResolutionSize(1280, 720, view.getResolutionPolicy());
+            view.setDesignResolutionSize(1280, 720, ResolutionPolicy.NO_BORDER);
         }
         //console.log(`设计分辨率: ${designSize.width} x ${designSize.height}`);
         const screenSize = view.getVisibleSize();
         console.log(`窗口可视区域宽度: ${screenSize.width}, 窗口可视区域高度: ${screenSize.height}  ${screen.windowSize}`);
         console.log(`onWindowResize width:${width} height:${height}`);
-        const designSize = view.getDesignResolutionSize();
-        let xScale = designSize.width / screen.windowSize.width;
-        let yScale = designSize.height / screen.windowSize.height;
-        this.popupLayer.scale = v3(xScale, yScale, 1);
+        // const designSize = view.getDesignResolutionSize();
+        // let xScale = designSize.width / screen.windowSize.width;
+        // let yScale = designSize.height / screen.windowSize.height;
+        // this.popupLayer.scale = v3(xScale, yScale, 1);
 
     }
 

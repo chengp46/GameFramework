@@ -11,5 +11,11 @@
     "designResolution": {
       "fitHeight": true
     }
-  }
+  },
+  "layer": [
+    {
+      "name": "Dialog",
+      "value": 1
+    }
+  ]
 }
