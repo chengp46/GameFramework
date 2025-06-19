@@ -1,7 +1,7 @@
 import { _decorator, assetManager, Component, JsonAsset, Label, resources } from 'cc';
 const { ccclass, property, executeInEditMode, disallowMultiple, requireComponent, executionOrder } = _decorator;
 import { LanguageMgr, LanguageManager } from './LanguageManager'
-import { Message } from '../MessageManager';
+import { MessageMgr } from '../MessageManager';
 import { EDITOR } from 'cc/env';
 
 @ccclass('L10nLabel')
@@ -27,11 +27,11 @@ export class L10nLabel extends Component {
         if (this.label) {
             this.label.string = this.value;
         }
-        Message.on("UpdateLocalized", this.updateLabel, this);
+        MessageMgr.on("UpdateLocalized", this.updateLabel, this);
     }
 
     onDestroy() {
-        Message.offAll(this);
+        MessageMgr.offAll(this);
     }
 
     updateLabel() {

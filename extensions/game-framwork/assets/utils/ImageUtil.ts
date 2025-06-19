@@ -36,6 +36,7 @@ export class ImageUtil {
         }
     }
 
+    // 创建纯色的精灵帧
     static createPureColorSpriteFrame(color: Color): SpriteFrame {
         const canvas = document.createElement("canvas");
         canvas.width = 2;

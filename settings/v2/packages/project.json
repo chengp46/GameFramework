@@ -14,8 +14,12 @@
   },
   "layer": [
     {
-      "name": "Dialog",
+      "name": "MAP",
       "value": 1
+    },
+    {
+      "name": "DIALOG",
+      "value": 4
     }
   ]
 }

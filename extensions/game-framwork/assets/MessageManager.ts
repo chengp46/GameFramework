@@ -131,4 +131,4 @@ export class MessageManager {
   }
 }
 
-export const Message = MessageManager.instance;
+export const MessageMgr = MessageManager.instance;

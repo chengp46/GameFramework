@@ -1,9 +1,3 @@
-/*
- * @Author: dgflash
- * @Date: 2022-09-01 18:00:28
- * @LastEditors: dgflash
- * @LastEditTime: 2022-09-02 12:05:38
- */
 import { Node } from "cc";
 
 /** 游戏摄像机层数据 */
@@ -37,6 +31,9 @@ export class LayerUtil {
     /** 替身对象层 */
     static AVATAR = new LayerItem(1, 'AVATAR');
 
+    /** 对话框弹出层 */
+    static DIALOG = new LayerItem(2, 'DIALOG');
+
     static IGNORE_RAYCAST = new LayerItem(20, 'IGNORE_RAYCAST');
     static GIZMOS = new LayerItem(21, 'GIZMOS');
     /** 编辑器对象层 */
@@ -50,6 +47,7 @@ export class LayerUtil {
     static PROFILTER = new LayerItem(28, 'PROFILTER');
     /** 默认对象层 */
     static DEFAULT = new LayerItem(30, 'DEFAULT');
+
 
     /**
      * 设置节点层

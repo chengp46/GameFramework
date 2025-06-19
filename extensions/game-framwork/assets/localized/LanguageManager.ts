@@ -1,6 +1,7 @@
 import { _decorator, Component, resources, TextAsset, director, JsonAsset, SpriteFrame, Sprite, Enum, find, Node, game } from 'cc';
 import { Message } from '../MessageManager';
 import { SceneMgr } from '../SceneManager';
+import { Singleton } from '../Decorators';
 
 const { ccclass, property, executeInEditMode, disallowMultiple } = _decorator;
 /**
@@ -77,13 +78,6 @@ export interface ILocalizedImage {
     name?: string;
 }
 
-export interface ILocalizedAudio {
-    key?: string;
-    path?: string;
-    name?: string;
-    bLanguage?: number;
-    bSex?: number;
-}
 
 /**
  * json、图片和声音资源配置约定在resources 本地bundle包下
@@ -94,7 +88,6 @@ export class LanguageManager {
     public static _instance: LanguageManager ;
     private textData: Map<string, ILocalizedConfig> = new Map();
     private imageData: Map<string, ILocalizedImage> = new Map();
-    private audioData: Map<string, ILocalizedAudio> = new Map();
     private currentLanguage = LanguageType.ZH;
     private imageConfigPath: string = 'texture/';
     private audioConfigPath: string = 'sounds/';

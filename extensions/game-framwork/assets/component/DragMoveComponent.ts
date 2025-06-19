@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, EventTouch, Vec3, UITransform, v3, tween, Input, EventTarget, Rect, clamp } from 'cc';
-import { Message } from '../MessageManager';
+import { MessageMgr } from '../MessageManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('DragMoveComponent')
@@ -43,7 +43,7 @@ export class DragMoveComponent extends Component {
         const localPos = this._getTouchLocalPos(event);
         Vec3.subtract(this._offset, this.node.position, localPos);
         this._isDragging = true;
-        Message.dispatchEvent(DragMoveComponent.EventType.DragStart, this.node);
+        MessageMgr.dispatchEvent(DragMoveComponent.EventType.DragStart, this.node);
     }
 
     protected _onTouchMove(event: EventTouch) {
@@ -58,13 +58,13 @@ export class DragMoveComponent extends Component {
         targetPos.y = clamp(targetPos.y, this.dragArea.yMin, this.dragArea.yMax);
 
         this.node.position = targetPos;
-        Message.dispatchEvent(DragMoveComponent.EventType.DragMove, this.node);
+        MessageMgr.dispatchEvent(DragMoveComponent.EventType.DragMove, this.node);
     }
 
     protected _onTouchEnd(event: EventTouch) {
         this._isDragging = false;
         this._trySnap();
-        Message.dispatchEvent(DragMoveComponent.EventType.DragEnd, this.node);
+        MessageMgr.dispatchEvent(DragMoveComponent.EventType.DragEnd, this.node);
     }
 
     private _getTouchLocalPos(event: EventTouch): Vec3 {

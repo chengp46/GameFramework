@@ -1,10 +1,11 @@
 import { _decorator, Component, macro, Node, UITransform, Prefab, error, resources, instantiate, Button, v3, tween, Sprite, Color, isValid, size, Game, director, game, screen, view, Vec3, ResolutionPolicy, find, Canvas, Layers, Camera, gfx, renderer, Widget, SpriteFrame, UIOpacity } from 'cc';
-import { Message } from './MessageManager';
+import { MessageMgr } from './MessageManager';
 import { LanguageManager } from './localized/LanguageManager';
 import { AudioSourceManager } from './AudioManager';
 import { LayerUtil } from './utils/LayerUtil';
 import { ResLoader } from './ResLoader';
 import { ImageUtil } from './utils/ImageUtil';
+import { __TYPE__, UIResource } from './Decorators';
 const { ccclass, property } = _decorator;
 
 export enum ScreenEvent {
@@ -19,20 +20,15 @@ export enum ScreenOrientation {
     ORIENTATION_PORTRAIT,
 }
 
-class UIResource {
-    resPath: string;
-    bundle: string;
-}
-
 export abstract class UIView extends Component {
     protected onLoad(): void {
-        Message.on(ScreenEvent.EventShowAndHide, (event, bShow: boolean) => {
+        MessageMgr.on(ScreenEvent.EventShowAndHide, (event, bShow: boolean) => {
             this.onEventShow(bShow);
         }, this);
     }
 
     protected onDestroy(): void {
-        Message.offAll(this);
+        MessageMgr.offAll(this);
     }
 
     onEventShow(bShow: boolean) {
@@ -64,7 +60,7 @@ export abstract class UIDialog extends Component {
 
     protected onDestroy(): void {
         this.node.targetOff(this);
-        Message.offAll(this);
+        MessageMgr.offAll(this);
     }
 
     showDialog() {
@@ -103,24 +99,6 @@ export abstract class UIDialog extends Component {
 
     onClose() {
         this.hideDialog();
-    }
-}
-
-type Constructor<T = {}> = { new(...args: any[]): any };
-export type __TYPE__<T> = new (...args: any[]) => T;
-export function prefabResource(path: string, bundle: string = '') {
-    if (0 == bundle.length) {
-        bundle = "resources";
-    }
-    return <T extends Constructor>(dialog: T) => {
-        let uiRes = SceneMgr.ResourceMap.get(dialog.name);
-        if (!uiRes) {
-            uiRes = new UIResource();
-            uiRes.resPath = path;
-            uiRes.bundle = bundle;
-            SceneMgr.ResourceMap.set(dialog.name, uiRes);
-        }
-        return dialog;
     }
 }
 
@@ -208,8 +186,14 @@ export class SceneManager {
         let mask = maskNode.addComponent(Sprite);
         mask.spriteFrame = ImageUtil.createPureColorSpriteFrame(Color.BLACK);
         mask.sizeMode = 0;
-        maskNode.getComponent(UITransform).contentSize = designSize;
-        LayerUtil.setNodeLayer(LayerUtil.UI_2D, maskNode);
+        const canvasSize = view.getVisibleSize();
+        maskNode.getComponent(UITransform).contentSize = canvasSize;
+        const textureSize = mask.spriteFrame.originalSize;
+        const scaleX = canvasSize.width / textureSize.width;
+        const scaleY = canvasSize.height / textureSize.height;
+        const scale = Math.max(scaleX, scaleY); // 按较大比例等比缩放，保证铺满
+        mask.node.setScale(scale, scale, 1);
+        LayerUtil.setNodeLayer(LayerUtil.UI_2D, this.popupLayer);
         maskNode.active = false;
         // 最顶层
         this.topLayer = new Node;
@@ -222,12 +206,12 @@ export class SceneManager {
 
             // 切换到前台事件
             game.on(Game.EVENT_SHOW, () => {
-                Message.dispatchEvent(ScreenEvent.EventShowAndHide, true);
+                MessageMgr.dispatchEvent(ScreenEvent.EventShowAndHide, true);
             });
 
             // 进入后台时触发的事件
             game.on(Game.EVENT_HIDE, () => {
-                Message.dispatchEvent(ScreenEvent.EventShowAndHide, false);
+                MessageMgr.dispatchEvent(ScreenEvent.EventShowAndHide, false);
             });
 
             screen.on('window-resize', this.onWindowResize, this);
@@ -248,14 +232,16 @@ export class SceneManager {
             view.setDesignResolutionSize(1280, 720, ResolutionPolicy.NO_BORDER);
         }
         //console.log(`设计分辨率: ${designSize.width} x ${designSize.height}`);
-        const screenSize = view.getVisibleSize();
-        console.log(`窗口可视区域宽度: ${screenSize.width}, 窗口可视区域高度: ${screenSize.height}  ${screen.windowSize}`);
+        const canvasSize = view.getVisibleSize();
+        console.log(`窗口可视区域宽度: ${canvasSize.width}, 窗口可视区域高度: ${canvasSize.height}  ${screen.windowSize}`);
         console.log(`onWindowResize width:${width} height:${height}`);
-        // const designSize = view.getDesignResolutionSize();
-        // let xScale = designSize.width / screen.windowSize.width;
-        // let yScale = designSize.height / screen.windowSize.height;
-        // this.popupLayer.scale = v3(xScale, yScale, 1);
-
+        // 遮罩适配
+        let mask = this.popupLayer.getChildByName("maskNode").getComponent(Sprite);
+        const textureSize = mask.spriteFrame.originalSize;
+        const scaleX = canvasSize.width / textureSize.width;
+        const scaleY = canvasSize.height / textureSize.height;
+        const scale = Math.max(scaleX, scaleY); // 按较大比例等比缩放，保证铺满
+        mask.node.setScale(scale, scale, 1);
     }
 
     changeView<T extends UIView>(viewType: __TYPE__<T>, callback?: (view: T) => T | void) {

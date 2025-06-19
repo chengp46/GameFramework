@@ -13,18 +13,25 @@ class AudioSourceItem {
     sceneId: number;
 }
 
+export interface ILocalizedAudio {
+    key?: string;
+    path?: string;
+    name?: string;
+    bLanguage?: number;
+    bSex?: number;
+}
+
 @ccclass('AudioSourceManager')
 export class AudioSourceManager {
     // AudioSourceManager全局实例
     private static _instance: AudioSourceManager = null;
-    // 当前音效场景ID
-    private soundSceneID: number = 0;
     // 背景音乐 AudioSource
     private bgmSource: AudioSource = null;
     // 音效 AudioSource
     private effectSource: AudioSource = null;
     // 资源列表
     private sourceList: AudioSourceItem[] = [];
+    private mapSourceList = new Map<string, ILocalizedAudio>();
     // 音效开始回调函数
     private startFunc: () => void = null;
     // 音效结束回调函数
@@ -35,18 +42,6 @@ export class AudioSourceManager {
             this._instance = new AudioSourceManager();
         }
         return this._instance;
-    }
-
-    /**
-     * 设置音效场景ID
-     * @param sceneId 场景ID
-     */
-    set SceneID(sceneId: number) {
-        this.soundSceneID = sceneId;
-    }
-
-    get SceneID() {
-        return this.soundSceneID;
     }
 
     /**
@@ -78,7 +73,7 @@ export class AudioSourceManager {
     }
 
 
-    initConfig() {
+    init() {
         // 初始化背景音乐 AudioSource
         this.bgmSource = SceneMgr.SceneNode.addComponent(AudioSource);
         this.bgmSource.loop = true; // 背景音乐循环播放
@@ -108,9 +103,13 @@ export class AudioSourceManager {
         }
     }
 
-    async register(sourceId: number, srcPath: string, bundle: string = "") {
+    loadConfig(filePath: string, bundle: string = "") {
+        
+    }
+
+    async register(sceneID: number, sourceId: number, srcPath: string, bundle: string = "") {
         for (let i = 0; i < this.sourceList.length; i++) {
-            if (this.sourceList[i].sourceId == sourceId && this.sourceList[i].sceneId == this.soundSceneID) {
+            if (this.sourceList[i].sourceId == sourceId && this.sourceList[i].sceneId == sceneID) {
                 return;
             }
         }
@@ -121,7 +120,7 @@ export class AudioSourceManager {
         sourceItem.sourceId = sourceId;
         sourceItem.srcPath = srcPath;
         sourceItem.bundle = bundle;
-        sourceItem.sceneId = this.soundSceneID;
+        sourceItem.sceneId = sceneID;
         sourceItem.audio = await ResLoader.load(sourceItem.srcPath, AudioClip, bundle);
         this.sourceList.push(sourceItem);
     }
