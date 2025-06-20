@@ -13,20 +13,34 @@ module.exports = Editor.Panel.define({
     template: readFileSync(join(__dirname, '../../../static/template/default/index.html'), 'utf-8'),
     style: readFileSync(join(__dirname, '../../../static/style/default/index.css'), 'utf-8'),
     $: {
-        app: '#app',
+        txtResPath: '#txtResPath',
+        imageResPath: '#imageResPath',
+        loadBtn: '#load-btn',
+        applyBtn: '#apply-btn',
     },
     methods: {
         hello() {
-            if (this.$.app) {
-                this.$.app.innerHTML = 'hello';
-                console.log('[cocos-panel-html.default]: hello');
-            }
+
         },
     },
     ready() {
-        if (this.$.app) {
-            this.$.app.innerHTML = 'Hello Cocos.';
-        }
+        (this.$.loadBtn as HTMLButtonElement).disabled = true;
+        this.$.txtResPath?.addEventListener('change', () => {
+            (this.$.loadBtn as HTMLButtonElement).disabled = false;
+        });
+        this.$.imageResPath?.addEventListener('change', () => {
+            (this.$['loadBtn'] as HTMLButtonElement).disabled = false;
+        });
+        this.$.loadBtn?.addEventListener('confirm', () => {
+            (this.$['loadBtn'] as HTMLButtonElement).disabled = true;
+            const ImagePath = (this.$.imageResPath as HTMLInputElement).value.trim();
+            const resPath = (this.$.txtResPath as HTMLInputElement).value.trim();
+            console.log(`资源路径为:txtPath:${resPath}  imagePath:${ImagePath}`);
+            Editor.Message.send('game-framwork', 'load-Json-Data', { txtPath: resPath, imagePath: ImagePath });
+        });
+        this.$.applyBtn?.addEventListener('confirm', () => {
+
+        });
     },
     beforeClose() { },
     close() { },

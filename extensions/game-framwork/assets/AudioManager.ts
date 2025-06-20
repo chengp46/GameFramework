@@ -1,8 +1,8 @@
 // AudioSourceManager.ts
 
 import { _decorator, Component, AudioSource, AudioClip, Node, director, find } from 'cc';
-import { SceneMgr } from './SceneManager';
 import { ResLoader } from './ResLoader';
+import { SceneMgr } from './SceneManager';
 const { ccclass, property } = _decorator;
 
 class AudioSourceItem {
@@ -104,7 +104,7 @@ export class AudioSourceManager {
     }
 
     loadConfig(filePath: string, bundle: string = "") {
-        
+
     }
 
     async register(sceneID: number, sourceId: number, srcPath: string, bundle: string = "") {

@@ -1,10 +1,10 @@
 import { _decorator, Node, Sprite, Label, SpriteFrame, input, Input, EventKeyboard, KeyCode } from 'cc';
 import { SetDialog } from './SetDialog';
 import * as protobuf from "./network/proto/player.js";
-import { SceneOrientationAdapter } from '../../../extensions/game-framwork/assets/component/SceneOrientationAdapter';
-import { LayerUtil } from '../../../extensions/game-framwork/assets/utils/LayerUtil';
 import { PrefabResource } from '../../../extensions/game-framwork/assets/Decorators';
 import { UIView } from '../../../extensions/game-framwork/assets/SceneManager';
+import { LanguageMgr, LanguageType } from '../../../extensions/game-framwork/assets/localized/LanguageManager';
+import { L10nLabel } from '../../../extensions/game-framwork/assets/localized/L10nLabel';
 const { Player } = protobuf?.default;
 
 
@@ -17,8 +17,8 @@ export enum eSoundConfig {
 @ccclass('GameView')
 @PrefabResource("prefabs/gameView")
 export class GameView extends UIView {
-    @property(Label)
-    label: Label | null = null;
+    @property(L10nLabel)
+    label: L10nLabel | null = null;
 
     @property(SpriteFrame)
     bg: SpriteFrame = null;
@@ -32,8 +32,11 @@ export class GameView extends UIView {
     pressed: boolean = false;
     curkeyCode: KeyCode;
 
+    index: number = 31;
+    count: number = 1;
+
     start() {
-        game.audio.register(10, eSoundConfig.GIRL, "sounds/Girl");
+        core.audio.register(10, eSoundConfig.GIRL, "sounds/Girl");
 
         // // 获取屏幕的宽度和高度
         // const screenSize = view.getVisibleSize();
@@ -55,11 +58,11 @@ export class GameView extends UIView {
         // const canvasSize = screen.windowSize;
         // console.log(`Canvas Width: ${canvasSize.width}, Canvas Height: ${canvasSize.height}`);
 
-        let global = game.config.getValue("gameConfig", "global");
+        let global = core.config.getValue("gameConfig", "global");
         console.log(`config: ${global?.server}`);
         console.log(`config: ${JSON.stringify(global)}`);
 
-        let image = game.config.getConfig("Localized_image");
+        let image = core.config.getConfig("Localized_image");
         console.log(`config: ${JSON.stringify(image)}`);
 
         //SceneMgr.setSpriteFrame("textures/bg2/spriteFrame", this.background);
@@ -119,12 +122,12 @@ export class GameView extends UIView {
     onButtonClick(event: Event, customData: string) {
         switch (customData) {
             case '1':
-                game.audio.playEffect(eSoundConfig.GIRL, () => {
+                core.audio.playEffect(eSoundConfig.GIRL, () => {
                     console.log('播放开始');
                 }, () => {
                     console.log('播放结束');
                 })
-                let httpReq = new game.httpReq();
+                let httpReq = new core.httpReq();
                 httpReq.get("http://127.0.0.1:8000/items/100", "", (data => {
                     if (data.success) {
                         console.log(data.response);
@@ -134,13 +137,19 @@ export class GameView extends UIView {
                 }));
                 break;
             case '2':
-                game.scene.openDialog(SetDialog, (dialog: SetDialog) => {
+                core.scene.openDialog(SetDialog, (dialog: SetDialog) => {
 
                 });
                 break;
             case '3':
-                let record = this.node.getComponent(SceneOrientationAdapter);
-                record.StateIndex = 1;
+                // let record = this.node.getComponent(SceneOrientationAdapter);
+                // record.StateIndex = 1;
+                this.label.Key = "197001301_SITE_NAME_" + this.index++;
+                break;
+            case '4':
+                let lang = this.count++ % 2 == 0 ? LanguageType.ZH : LanguageType.EN;
+                LanguageMgr.CurrentLanguage = lang;
+                break;
             default:
                 break;
         }

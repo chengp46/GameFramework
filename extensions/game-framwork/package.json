@@ -22,7 +22,7 @@
     },
     "panels": {
         "default": {
-            "title": "game-framwork Default Panel",
+            "title": "game",
             "type": "dockable",
             "main": "dist/panels/default",
             "size": {
@@ -43,7 +43,8 @@
         "inspector": {
             "section": {
                 "node": {
-                    "L10nLabel": "./dist/components/L10n-Label.js"
+                    "L10nLabel": "./dist/components/L10n-Label.js",
+                    "L10nSprite": "./dist/components/L10n-Sprite.js"
                 }
             }
         },
@@ -60,6 +61,13 @@
             }
         ],
         "messages": {
+            "load-Json-Data": {
+                "public": true,
+                "description": "重新加载多语言文件Json数据",
+                "methods": [
+                    "loadResJsonData"
+                ]
+            },
             "get-text": {
                 "public": true,
                 "description": "获取多语言文件Json数据",

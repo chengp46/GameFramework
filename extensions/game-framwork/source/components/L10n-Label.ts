@@ -64,5 +64,7 @@ export async function ready(this: any) {
             args: [key, this.$.value.value]
         });
 		await Editor.Message.request('scene', 'soft-reload');
+        await Editor.Message.send('scene', 'refresh-scene');
+        this.dispatch('change');
     });
 }

@@ -49,12 +49,12 @@ export class GameCore {
 /** 全局 Window 接口 */
 declare global {
     interface Window {
-        game: GameCore;
+        core: GameCore;
     }
-    var game: GameCore;
+    var core: GameCore;
 }
 
 // 初始化实例并挂载到全局
-const _game = new GameCore();
-window.game = _game;    
-export { _game as game };
+const _gameCore = new GameCore();
+window.core = _gameCore;    
+export { _gameCore as core };

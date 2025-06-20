@@ -39,6 +39,7 @@ export class ResLoader {
             bundle.load(url, type, (err, asset) => {
                 if (err) {
                     console.error(`加载${url}失败: ${err}`);
+                    reject(null);
                     return;
                 }
                 this._cache.set(key, { asset, refCount: 1, bundleName });

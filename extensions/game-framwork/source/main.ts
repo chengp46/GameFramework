@@ -4,9 +4,8 @@ const path = require("path");
 const chokidar = require("chokidar");
 const fs = require("fs");
 
-const textPath = path.join(Editor.Project.path, "assets/resources/config/Localized_text.json");
-const imagePath = path.join(Editor.Project.path, "assets/resources/config/Localized_text.json");
-const audioPath = path.join(Editor.Project.path, "assets/resources/config/Localized_text.json");
+let textPath = path.join(Editor.Project.path, "assets/resources/config/Localized_text.json");
+let imagePath = path.join(Editor.Project.path, "assets/resources/config/Localized_image.json");
 let jsonData: Record<string, any>[] = [];
 
 /**
@@ -18,10 +17,10 @@ export const methods: {
     imageData: Record<string, any>;
     audioData: Record<string, any>;
     loadJsonData: (index: number) => void;
+    loadResJsonData: (args: any)=> void;
     startWatching: () => void;
     getTextData: () => Record<string, any>;
     getImageData: () => Record<string, any>;
-    getAudioData: () => Record<string, any>;
     openPanel: () => void;
 } = {
     textData: {},
@@ -32,8 +31,7 @@ export const methods: {
      * 加载 JSON 文件数据
      */
     loadJsonData(index: number) {
-        //let jsonDataArray  = [methods.textData, methods.imageData, methods.audioData];
-        const filePathArray = [textPath, imagePath, audioPath];
+        const filePathArray = [textPath, imagePath];
         if (fs.existsSync(filePathArray[index])) {
             const data = fs.readFileSync(filePathArray[index], "utf-8");
             jsonData[index] = JSON.parse(data);
@@ -43,10 +41,20 @@ export const methods: {
         }
     },
     /**
+     * 重新加载 JSON 文件数据
+     */
+    loadResJsonData(args: any) {
+        console.log(`收到loadResJsonData:${JSON.stringify(args)}`);
+        textPath = path.join(Editor.Project.path, args.txtPath);
+        imagePath = path.join(Editor.Project.path, args.imagePath);;
+        methods.loadJsonData(0);
+        methods.loadJsonData(1);
+    },
+    /**
      * 启动监听 JSON 变更
      */
     startWatching() {
-        const filePaths = [textPath, imagePath, audioPath];
+        const filePaths = [textPath, imagePath];
         filePaths.forEach((path, index) => {
             chokidar.watch(path, { persistent: true }).on("change", () => {
                 console.log(`[JSON Watcher] ${path} 文件发生变更，重新加载...`);
@@ -65,19 +73,13 @@ export const methods: {
         return jsonData[0];
     },
     /**
-     * 获取 文本JSON 数据
+     * 获取 图片JSON 数据
      */
     getImageData() {
         if (!jsonData[1] || Object.keys(jsonData[1]).length === 0) {
             methods.loadJsonData(0);
         }
         return jsonData[1];
-    },
-    /**
-    * 获取 文本JSON 数据
-    */
-    getAudioData() {
-        return this.audioData;
     },
     /**
      * @en A method that can be triggered by message
@@ -95,7 +97,6 @@ export const methods: {
 export function load() {
     methods.loadJsonData(0);
     methods.loadJsonData(1);
-    methods.loadJsonData(2);
     methods.startWatching();
 }
 

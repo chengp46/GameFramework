@@ -9,17 +9,28 @@ import { EDITOR } from 'cc/env';
 @executeInEditMode
 @disallowMultiple
 export class L10nLabel extends Component {
-    @property({visible :false})
+    @property({ visible: false })
     private label: Label | null = null;
     @property
-    public key: string = "";
+    protected key: string = "";
     @property
-    public value: string = "";
+    protected value: string = "";
 
+    set Key(value: string) {
+        this.key = value;
+        this.value = LanguageMgr.getText(this.key);
+        this.label.string = (this.value.length == 0) ? "--Error-" : this.value;
+    }
+
+    get Key() {
+        return this.key;
+    }
+
+    get String(): string {
+        return this.value;
+    }
 
     protected onLoad() {
-        // let ss = LanguageManager.getInstance().getText(this.key);
-        // console.log(`加载key的数据: ${ss}`);
     }
 
     start() {
@@ -35,8 +46,8 @@ export class L10nLabel extends Component {
     }
 
     updateLabel() {
-        // let lstring = LanguageMgr.getText(this.key);
-        // this.label.string = (lstring.length == 0) ? "Error" : lstring;
+        let lstring = LanguageMgr.getText(this.key);
+        this.label.string = (lstring.length == 0) ? "--Error-" : lstring;
     }
 
     updateData(key: string, value: string) {
@@ -45,7 +56,7 @@ export class L10nLabel extends Component {
         if (EDITOR) {
             if (this.label) {
                 this.label.string = this.value;
-            }            
+            }
         }
     }
 }

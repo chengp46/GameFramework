@@ -5,11 +5,14 @@ const { ccclass, property } = _decorator;
 @ccclass('MainScene')
 export class MainScene extends Component {
     start() {
-        game.scene.initScene();
-        game.config.loadAllConfigs();
-        game.audio.init();
-        game.language.initConfig();
-        game.scene.changeView(GameView);
+        core.scene.initScene();
+        core.audio.init();
+        let func = async () => {
+            await core.config.loadAllConfigs();       
+            await core.language.initConfig();
+            core.scene.changeView(GameView);
+        };
+        func();  
     }
 
     update(deltaTime: number) {
