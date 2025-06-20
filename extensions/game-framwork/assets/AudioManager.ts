@@ -1,7 +1,7 @@
 // AudioSourceManager.ts
 
 import { _decorator, Component, AudioSource, AudioClip, Node, director, find } from 'cc';
-import ResourceManager from './ResourceManager';
+import { ResLoader } from './ResLoader';
 import { SceneMgr } from './SceneManager';
 const { ccclass, property } = _decorator;
 
@@ -13,17 +13,25 @@ class AudioSourceItem {
     sceneId: number;
 }
 
+export interface ILocalizedAudio {
+    key?: string;
+    path?: string;
+    name?: string;
+    bLanguage?: number;
+    bSex?: number;
+}
+
+@ccclass('AudioSourceManager')
 export class AudioSourceManager {
     // AudioSourceManager全局实例
     private static _instance: AudioSourceManager = null;
-    // 当前音效场景ID
-    private soundSceneID: number = 0;
     // 背景音乐 AudioSource
     private bgmSource: AudioSource = null;
     // 音效 AudioSource
     private effectSource: AudioSource = null;
     // 资源列表
     private sourceList: AudioSourceItem[] = [];
+    private mapSourceList = new Map<string, ILocalizedAudio>();
     // 音效开始回调函数
     private startFunc: () => void = null;
     // 音效结束回调函数
@@ -32,30 +40,8 @@ export class AudioSourceManager {
     public static get instance(): AudioSourceManager {
         if (!this._instance) {
             this._instance = new AudioSourceManager();
-            // let audioNode = find("AudioNode");
-            // if (audioNode) {
-            //     this._instance = audioNode.getComponent(AudioSourceManager);
-            // } else {
-            //     audioNode = new Node('AudioNode');
-            //     this._instance = audioNode.addComponent(AudioSourceManager);
-            //     // 使节点常驻，避免切换场景时被销毁 
-            //     audioNode.setParent(director.getScene());
-            //     director.addPersistRootNode(audioNode);
-            // } 
         }
         return this._instance;
-    }
-
-    /**
-     * 设置音效场景ID
-     * @param sceneId 场景ID
-     */
-    set SceneID(sceneId: number) {
-        this.soundSceneID = sceneId;
-    }
-
-    get SceneID() {
-        return this.soundSceneID;
     }
 
     /**
@@ -102,7 +88,7 @@ export class AudioSourceManager {
         this.effectSource.node.on(AudioSource.EventType.ENDED, this.onAudioEnded, this);
     }
 
-    destroy(): void {
+    release(): void {
         this.effectSource.node.off(AudioSource.EventType.STARTED, this.onAudioStarted, this);
         this.effectSource.node.off(AudioSource.EventType.ENDED, this.onAudioEnded, this);
     }
@@ -117,22 +103,25 @@ export class AudioSourceManager {
         }
     }
 
-    async register(sourceId: number, srcPath: string, bundle: string = "") {
+    loadConfig(filePath: string, bundle: string = "") {
+
+    }
+
+    async register(sceneID: number, sourceId: number, srcPath: string, bundle: string = "") {
         for (let i = 0; i < this.sourceList.length; i++) {
-            if (this.sourceList[i].sourceId == sourceId && this.sourceList[i].sceneId == this.soundSceneID) {
+            if (this.sourceList[i].sourceId == sourceId && this.sourceList[i].sceneId == sceneID) {
                 return;
             }
+        }
+        if (0 == bundle.length) {
+            bundle = "resources";
         }
         let sourceItem = new AudioSourceItem();
         sourceItem.sourceId = sourceId;
         sourceItem.srcPath = srcPath;
         sourceItem.bundle = bundle;
-        sourceItem.sceneId = this.soundSceneID;
-        if (sourceItem.bundle != '') {
-            sourceItem.audio = await ResourceManager.loadLocalOtherAsync(sourceItem.srcPath, sourceItem.bundle);
-        } else {
-            sourceItem.audio = await ResourceManager.loadLocalAsync(sourceItem.srcPath);
-        }
+        sourceItem.sceneId = sceneID;
+        sourceItem.audio = await ResLoader.load(sourceItem.srcPath, AudioClip, bundle);
         this.sourceList.push(sourceItem);
     }
 
@@ -140,7 +129,7 @@ export class AudioSourceManager {
         let sList: AudioSourceItem[] = [];
         for (let i = 0; i < this.sourceList.length; i++) {
             if (this.sourceList[i].sceneId == sceneId) {
-                ResourceManager.releaseAsset(this.sourceList[i].audio);
+                ResLoader.release(this.sourceList[i].srcPath, this.sourceList[i].bundle);
             }
             else {
                 sList.push(this.sourceList[i]);
@@ -159,12 +148,8 @@ export class AudioSourceManager {
     }
 
     // 设置背景音乐
-    public async setBackgroundMusic(srcPath: string, bundle: string = "", callback:()=>void) {
-        if (bundle !== '') {
-            this.bgmSource.clip = await ResourceManager.loadLocalOtherAsync(srcPath, bundle);
-        } else {
-            this.bgmSource.clip = await ResourceManager.loadLocalAsync(srcPath);
-        }
+    public async setBackgroundMusic(srcPath: string, bundle: string = "", callback: () => void) {
+        this.bgmSource.clip = await ResLoader.load(srcPath, AudioClip, bundle);
         callback && callback();
     }
 
@@ -225,7 +210,7 @@ export class AudioSourceManager {
     public resume() {
         if (this.bgmSource) {
             this.bgmSource.play();
-        }     
+        }
     }
 
     /**

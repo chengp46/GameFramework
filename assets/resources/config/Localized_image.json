@@ -1,17 +1,56 @@
 [
     {
-        "key": "start",
-        "zh": "start",
-        "tw": "start",
-        "en": "start",
-        "ko": "start",
-        "ja": "start",
-        "th": "start",
-        "vi": "start",
-        "po": "start",
-        "in": "start",
-        "sp": "start",
-        "bu": "start",
-        "remark": "start"
+        "key": "197001301_SITE_NAME_32",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 1
+    },
+    {
+        "key": "197001301_SITE_NAME_33",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 2
+    },
+    {
+        "key": "197001301_SITE_NAME_34",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 3
+    },
+    {
+        "key": "197001301_SITE_NAME_35",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 4
+    },
+    {
+        "key": "197001301_SITE_NAME_36",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 5
+    },
+    {
+        "key": "197001301_SITE_NAME_37",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 6
+    },
+    {
+        "key": "197001301_SITE_NAME_38",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 7
+    },
+    {
+        "key": "197001301_SITE_NAME_39",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 8
+    },
+    {
+        "key": "197001301_SITE_NAME_40",
+        "path": "room/image",
+        "bLanguage": 0,
+        "imageName": 9
     }
 ]

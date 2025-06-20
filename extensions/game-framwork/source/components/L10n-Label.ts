@@ -44,7 +44,7 @@ export async function ready(this: any) {
     if (this.dump?.value) {
         this.$.key.value = this.dump?.value.key.value;
         this.$.value.value = this.dump?.value.value.value;
-        Editor.Message.send("scene", "execute-component-method", {
+        await Editor.Message.send("scene", "execute-component-method", {
             uuid: this.dump.value.uuid.value, name: "updateData",
             args: [this.$.key.value, this.$.value.value]
         });
@@ -59,9 +59,12 @@ export async function ready(this: any) {
         let str = jsonData.get(key);
         let strData = str ? str.zh : 'no found!';
         this.$.value.value = strData;
-        Editor.Message.send("scene", "execute-component-method", {
+        await Editor.Message.send("scene", "execute-component-method", {
             uuid: this.dump.value.uuid.value, name: "updateData",
             args: [key, this.$.value.value]
         });
+		await Editor.Message.request('scene', 'soft-reload');
+        await Editor.Message.send('scene', 'refresh-scene');
+        this.dispatch('change');
     });
 }

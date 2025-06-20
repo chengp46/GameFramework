@@ -1,7 +1,9 @@
 import { _decorator, Component, resources, TextAsset, director, JsonAsset, SpriteFrame, Sprite, Enum, find, Node, game } from 'cc';
-import ResourceManager from '../ResourceManager'
-import { Message } from '../MessageManager';
 import { SceneMgr } from '../SceneManager';
+import { Singleton } from '../Decorators';
+import { ResLoader } from '../ResLoader';
+import { ConfigMgr } from '../ConfigManager';
+import { MessageMgr } from '../MessageManager';
 
 const { ccclass, property, executeInEditMode, disallowMultiple } = _decorator;
 /**
@@ -72,43 +74,33 @@ export interface ILocalizedConfig {
     remark?: string;
 }
 
+export interface ILocalizedImage {
+    key?: string;
+    path?: string;
+    bLanguage?: boolean;
+    imageName?: string;
+    bundleName?: string;
+}
+
+
 /**
  * json、图片和声音资源配置约定在resources 本地bundle包下
  * Localized_text.json Localized_image.json Localized_audio.json 
 */
 @ccclass('LanguageManager')
 export class LanguageManager {
-    public static _instance: LanguageManager ;
+    public static _instance: LanguageManager;
     private textData: Map<string, ILocalizedConfig> = new Map();
-    private imageData: Map<string, ILocalizedConfig> = new Map();
-    private audioData: Map<string, ILocalizedConfig> = new Map();
+    private imageData: Map<string, ILocalizedImage> = new Map();
     private currentLanguage = LanguageType.ZH;
-    private imageConfigPath: string = 'texture/';
-    private audioConfigPath: string = 'sounds/';
 
     set CurrentLanguage(value: LanguageType) {
         this.currentLanguage = value;
-        Message.dispatchEvent("UpdateLocalized");
+        MessageMgr.dispatchEvent("UpdateLocalized");
     }
 
     get CurrentLanguage() {
         return this.currentLanguage;
-    }
-
-    set ImageConfigPath(value: string) {
-        this.imageConfigPath = value;
-    }
-
-    get ImageConfigPath() {
-        return this.imageConfigPath;
-    }
-
-    set AudioConfigPath(value: string) {
-        this.audioConfigPath = value;
-    }
-
-    get AudioConfigPath() {
-        return this.audioConfigPath;
     }
 
     public static getInstance(): LanguageManager {
@@ -118,22 +110,41 @@ export class LanguageManager {
         return this._instance;
     }
 
-    public initConfig(): void {
-        // if (this.textJson) {
-        //     this.textJson.json.forEach(vaule => {
-        //         this.textData.set(vaule.key, vaule);
-        //     });
-        // }
-        // if (this.imageJson) {
-        //     this.textJson.json.forEach(vaule => {
-        //         this.imageData.set(vaule.key, vaule);
-        //     });
-        // }
-        // if (this.audioJson) {
-        //     this.textJson.json.forEach(vaule => {
-        //         this.audioData.set(vaule.key, vaule);
-        //     });
-        // }
+    public loadTxtConfig(url: string, bundle: string = "resources"): void {
+        let func = async () => {
+            let data = await ResLoader.load(url, JsonAsset, bundle);
+            data.json.forEach(vaule => {
+                this.textData.set(vaule.key, vaule);
+            });
+        };
+        func();
+    }
+
+    public loadImageConfig(url: string, bundle: string = "resources"): void {
+        let func = async () => {
+            let data = await ResLoader.load(url, JsonAsset, bundle);
+            data.json.forEach(vaule => {
+                vaule.bundleName = bundle;
+                this.imageData.set(vaule.key, vaule);
+            });
+        };
+        func();
+    }
+
+    public initConfig() {
+        let textData = ConfigMgr.getConfig("Localized_text");
+        if (textData) {
+            textData.forEach(vaule => {
+                this.textData.set(vaule.key, vaule);
+            });
+        }
+        let imageData = ConfigMgr.getConfig("Localized_image");
+        if (imageData) {
+            imageData.forEach(vaule => {
+                vaule.bundleName = "resources";
+                this.imageData.set(vaule.key, vaule);
+            });
+        }
     }
 
     getLocalizedValue(data: ILocalizedConfig) {
@@ -174,27 +185,25 @@ export class LanguageManager {
         return this.getLocalizedValue(data);
     }
 
-    // **获取图片路径**
-    public getImage(key: string, sprite: Sprite) {
+    // **设置精灵帧**
+    public setSpriteFrame(key: string, sprite: Sprite) {
         if (!key || key.length === 0 || sprite == null) {
             return;
         }
         let data = this.imageData.get(key);
-        let filePath = this.ImageConfigPath + this.getLocalizedValue(data);
-        ResourceManager.loadLocal(filePath, (asset: SpriteFrame) => {
-            if (asset) {
-                sprite.spriteFrame = asset;
+        let func = async () => {
+            if (data.bLanguage) {
+                data.path = data.path.trim();
+                data.path = data.path.endsWith("/") ? data.path : data.path + "/";
+                data.path = data.path + this.currentLanguage + "/";
             }
-        });
-    }
-
-    // **获取音频路径**
-    public getAudio(key: string): string {
-        let data = this.textData.get(key);
-        if (data == null) {
-            return '';
-        }
-        return this.audioConfigPath + this.getLocalizedValue(data);
+            data.path = data.path + data.imageName;
+            let image = await ResLoader.load(data.path, SpriteFrame, data.bundleName);
+            if (image) {
+                sprite.spriteFrame = image;
+            }
+        };
+        func();
     }
 }
 

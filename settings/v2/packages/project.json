@@ -4,5 +4,20 @@
     "importMap": "",
     "sortingPlugin": []
   },
-  "custom_joint_texture_layouts": []
+  "custom_joint_texture_layouts": [],
+  "general": {
+    "designResolution": {
+      "fitHeight": true
+    }
+  },
+  "layer": [
+    {
+      "name": "MAP",
+      "value": 1
+    },
+    {
+      "name": "DIALOG",
+      "value": 4
+    }
+  ]
 }

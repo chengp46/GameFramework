@@ -1,4 +1,4 @@
-import { Color, ImageAsset, Texture2D } from "cc";
+import { Color, ImageAsset, SpriteFrame, Texture2D } from "cc";
 
 /**
  * 图像工具
@@ -34,5 +34,24 @@ export class ImageUtil {
             let color = new Color(r, g, b, a);
             return color;
         }
+    }
+
+    // 创建纯色的精灵帧
+    static createPureColorSpriteFrame(color: Color): SpriteFrame {
+        const canvas = document.createElement("canvas");
+        canvas.width = 2;
+        canvas.height = 2;
+        const ctx = canvas.getContext("2d")!;
+        ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a / 255})`;
+        ctx.fillRect(0, 0, 2, 2);
+
+        const imgAsset = new ImageAsset(canvas);
+        const texture = new Texture2D();
+        texture.image = imgAsset;
+
+        const spriteFrame = new SpriteFrame();
+        spriteFrame.texture = texture;
+
+        return spriteFrame;
     }
 }

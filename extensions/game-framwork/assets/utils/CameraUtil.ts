@@ -1,9 +1,3 @@
-/*
- * @Author: dgflash
- * @Date: 2022-07-26 15:29:57
- * @LastEditors: dgflash
- * @LastEditTime: 2022-09-02 14:50:16
- */
 import { Camera, Vec3, view } from "cc";
 
 /** 摄像机工具 */
