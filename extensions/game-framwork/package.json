@@ -2,7 +2,7 @@
     "$schema": "./@types/schema/package/index.json",
     "package_version": 2,
     "name": "game-framwork",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "Cocos Creator",
     "editor": ">=3.8.5",
     "scripts": {
@@ -87,12 +87,19 @@
                     "openPanel"
                 ]
             },
-            "send-to-panel": {   
+            "send-to-panel": {
                 "methods": [
-                    "default.hello" 
+                    "default.hello"
+                ]
+            },
+            "game-framwork:updateLanguage": {
+                "public": true,
+                "description": "更新多语言信息",
+                "methods": [
+                    "onLanguageChanged"
                 ]
             }
         }
-    }, 
+    },
     "license": "ISC"
 }

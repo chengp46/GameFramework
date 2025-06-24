@@ -77,7 +77,7 @@ export const methods: {
      */
     getImageData() {
         if (!jsonData[1] || Object.keys(jsonData[1]).length === 0) {
-            methods.loadJsonData(0);
+            methods.loadJsonData(1);
         }
         return jsonData[1];
     },
@@ -87,7 +87,7 @@ export const methods: {
      */
     openPanel() {
         Editor.Panel.open(packageJSON.name);
-    },
+    }
 };
 
 /**

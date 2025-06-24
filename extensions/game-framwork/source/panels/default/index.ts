@@ -1,3 +1,4 @@
+import { INode } from '@cocos/creator-types/editor/packages/scene/@types/public';
 import { readFileSync } from 'fs-extra';
 import { join } from 'path';
 /**
@@ -17,11 +18,15 @@ module.exports = Editor.Panel.define({
         imageResPath: '#imageResPath',
         loadBtn: '#load-btn',
         applyBtn: '#apply-btn',
+        langSelect: '#lang-select',
     },
     methods: {
         hello() {
 
         },
+        onLanguageChanged(args: any) {
+            console.log('index 收到语言切换广播：', args);
+        }
     },
     ready() {
         (this.$.loadBtn as HTMLButtonElement).disabled = true;
@@ -39,9 +44,14 @@ module.exports = Editor.Panel.define({
             Editor.Message.send('game-framwork', 'load-Json-Data', { txtPath: resPath, imagePath: ImagePath });
         });
         this.$.applyBtn?.addEventListener('confirm', () => {
-
+            console.log(`langSelect:${(this.$.langSelect as HTMLSelectElement).value}`);
+            Editor.Message.broadcast('game-framwork:updateLanguage', {
+                language: (this.$.langSelect as HTMLSelectElement).value
+            });
         });
     },
-    beforeClose() { },
+    beforeClose() {
+
+    },
     close() { },
 });

@@ -3,6 +3,7 @@ import { SetDialog } from './SetDialog';
 import * as protobuf from "./network/proto/player.js";
 import { PrefabResource } from '../../../extensions/game-framwork/assets/Decorators';
 import { UIView } from '../../../extensions/game-framwork/assets/SceneManager';
+import { core } from '../../../extensions/game-framwork/assets/GameCore';
 import { LanguageMgr, LanguageType } from '../../../extensions/game-framwork/assets/localized/LanguageManager';
 import { L10nLabel } from '../../../extensions/game-framwork/assets/localized/L10nLabel';
 const { Player } = protobuf?.default;

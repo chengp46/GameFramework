@@ -27,43 +27,72 @@ exports.style = `
 export const $ = {
     key: ".key",
     value: ".value",
-    apply: "#apply"
+    apply: "#apply",
+    language: "#language",
+    // imageName: "#imageName",
+    // bundle: "#bundle"
 };
 
+export interface ILocalizedImage {
+    key?: string;
+    path?: string;
+    bLanguage?: boolean;
+    imageName?: string;
+    bundleName?: string;
+}
 
-type PanelThis = Selector<typeof $> & { dump: any };
+//type PanelThis = Selector<typeof $> & { dump: any };
+type PanelThis = {
+    $: {
+        key: HTMLInputElement;
+        value: HTMLInputElement;
+        apply: HTMLButtonElement;
+        language: number;
+        imageName: string;
+        bundleName: string;
+    };
+    dump: any;
+    onLanguageChanged?: (args: any) => void;
+};
 
 export function update(this: PanelThis, dump: any) {
-    //console.log('dump:', dump);
+    console.log('dump:', dump);
     this.dump = dump;
     this.$.key.value = dump.value.key.value;
     this.$.value.value = dump.value.value.value;
+    this.$.language = this.dump?.value.language.value;
+    this.$.imageName = this.dump?.value.imageName.value;
+    this.$.bundleName = this.dump?.value.bundleName.value;
 }
 
 export async function ready(this: any) {
     if (this.dump?.value) {
         this.$.key.value = this.dump?.value.key.value;
         this.$.value.value = this.dump?.value.value.value;
-        await Editor.Message.send("scene", "execute-component-method", {
-            uuid: this.dump.value.uuid.value, name: "updateData",
-            args: [this.$.key.value, this.$.value.value]
-        });
+        this.$.language.value = this.dump?.value.language.value;
+        //this.$.imageName.value = this.dump?.value.imageName.value;
+        // await Editor.Message.send("scene", "execute-component-method", {
+        //     uuid: this.dump.value.uuid.value, name: "updateData",
+        //     args: [this.$.key.value, this.$.value.value]
+        // });
     }
     let jsonData = new Map<string, any>();
-    const data: Record<string, any> = await Editor.Message.request('game-framwork', 'get-text');
+    const data: Record<string, any> = await Editor.Message.request('game-framwork', 'get-Image');
     for (const key in data) {
         jsonData.set(data[key].key, data[key]);
     }
     this.$.apply.addEventListener("confirm", async () => {
         let key = this.$.key.value;
         let str = jsonData.get(key);
-        let strData = str ? str.zh : 'no found!';
+        let strData = str ? str.path : 'no found!';
         this.$.value.value = strData;
         await Editor.Message.send("scene", "execute-component-method", {
             uuid: this.dump.value.uuid.value, name: "updateData",
-            args: [key, this.$.value.value]
+            args: [this.$.key.value, str]
         });
-		await Editor.Message.request('scene', 'soft-reload');
+        await Editor.Message.request('scene', 'soft-reload');
         await Editor.Message.send('scene', 'refresh-scene');
     });
+
+
 }

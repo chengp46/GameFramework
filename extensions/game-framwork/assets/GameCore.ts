@@ -1,6 +1,7 @@
 import { AudioMgr } from "./AudioManager";
 import { ConfigMgr } from "./ConfigManager";
 import HttpRequest from "./HttpRequest";
+import { LogManager } from "./LogManager";
 import { LanguageMgr } from "./localized/LanguageManager";
 import { MessageMgr } from "./MessageManager";
 import ObjectPool from "./ObjectPool";
@@ -29,6 +30,7 @@ export class GameCore {
     message = MessageMgr;
     storage = StorageMgr;
     httpReq = HttpRequest;
+    log = LogManager;
     loader = ResLoader;
     objectPool = ObjectPool;
     arrayUtil = ArrayUtil;
