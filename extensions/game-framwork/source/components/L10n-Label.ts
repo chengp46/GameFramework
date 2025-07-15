@@ -31,7 +31,16 @@ export const $ = {
 };
 
 
-type PanelThis = Selector<typeof $> & { dump: any };
+//type PanelThis = Selector<typeof $> & { dump: any };
+type PanelThis = {
+    $: {
+        key: HTMLInputElement;
+        value: HTMLInputElement;
+        apply: HTMLButtonElement;
+    };
+    dump: any;
+    onLanguageChanged?: (args: any) => void;
+};
 
 export function update(this: PanelThis, dump: any) {
     //console.log('dump:', dump);
@@ -63,8 +72,33 @@ export async function ready(this: any) {
             uuid: this.dump.value.uuid.value, name: "updateData",
             args: [key, this.$.value.value]
         });
-		await Editor.Message.request('scene', 'soft-reload');
+        await Editor.Message.request('scene', 'soft-reload');
         await Editor.Message.send('scene', 'refresh-scene');
         this.dispatch('change');
     });
+
+    this.onLanguageChanged = (args: any) => {
+        //console.log('收到语言切换广播：', args);
+        let key = this.$.key.value;
+        let str = jsonData.get(key);
+        let strData = str[args.language];
+        this.$.value.value = strData;
+        let func = async () => {
+            await Editor.Message.send("scene", "execute-component-method", {
+                uuid: this.dump.value.uuid.value, name: "updateData",
+                args: [key, this.$.value.value]
+            });
+            await Editor.Message.request('scene', 'soft-reload');
+            await Editor.Message.send('scene', 'refresh-scene');
+            this.dispatch('change');
+        };
+        func();
+    };
+    Editor.Message.addBroadcastListener('game-framwork:updateLanguage', this.onLanguageChanged);
+}
+
+export function beforeClose(this: any) {
+    if (this.onLanguageChanged) {
+        Editor.Message.removeBroadcastListener('game-framwork:updateLanguage', this.onLanguageChanged);
+    }
 }

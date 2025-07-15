@@ -192,12 +192,12 @@ export class LanguageManager {
         }
         let data = this.imageData.get(key);
         let func = async () => {
+            data.path = data.path.trim();
+            data.path = data.path.endsWith("/") ? data.path : data.path + "/";
             if (data.bLanguage) {
-                data.path = data.path.trim();
-                data.path = data.path.endsWith("/") ? data.path : data.path + "/";
                 data.path = data.path + this.currentLanguage + "/";
             }
-            data.path = data.path + data.imageName;
+            data.path = data.path + data.imageName + "/spriteFrame";
             let image = await ResLoader.load(data.path, SpriteFrame, data.bundleName);
             if (image) {
                 sprite.spriteFrame = image;

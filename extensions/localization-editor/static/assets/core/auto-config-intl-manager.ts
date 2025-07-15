@@ -7,7 +7,7 @@ if (cclegacy.GAME_VIEW || EDITOR) { // for Editor
     await l10n.createIntl({});
 
 } else { // for Runtime or Preview
-    core.onPostProjectInitDelegate.add(
+    game.onPostProjectInitDelegate.add(
         () => l10n.createIntl({}),
     );
 }

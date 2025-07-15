@@ -133,7 +133,7 @@ export class L10nManager {
             if (!EDITOR) {
                 localStorage.setItem(L10nManager.LOCAL_STORAGE_LANGUAGE_KEY, language);
                 console.log(`[${pluginName}] game will restart`);
-                core.restart();
+                game.restart();
             }
         } else {
             console.log(`[${pluginName}] language data not load, please confirm whether the language data is included in the build`);
