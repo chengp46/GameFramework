@@ -1,6 +1,8 @@
 import { _decorator, Component, Node } from 'cc';
 import { GameView } from './game/GameView';
+import { core } from './global';
 const { ccclass, property } = _decorator;
+
 
 @ccclass('MainScene')
 export class MainScene extends Component {

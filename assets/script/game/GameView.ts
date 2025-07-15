@@ -5,6 +5,7 @@ import { PrefabResource } from '../../../extensions/game-framwork/assets/Decorat
 import { UIView } from '../../../extensions/game-framwork/assets/SceneManager';
 import { LanguageMgr, LanguageType } from '../../../extensions/game-framwork/assets/localized/LanguageManager';
 import { L10nLabel } from '../../../extensions/game-framwork/assets/localized/L10nLabel';
+import { core } from '../global';
 const { Player } = protobuf?.default;
 
 
@@ -65,12 +66,12 @@ export class GameView extends UIView {
         let image = core.config.getConfig("Localized_image");
         console.log(`config: ${JSON.stringify(image)}`);
 
-        //SceneMgr.setSpriteFrame("textures/bg2/spriteFrame", this.background);
+        // SceneMgr.setSpriteFrame("textures/bg2/spriteFrame", this.background);
 
-        // 创建 Protobuf 对象
+        //创建 Protobuf 对象
         let playerData = Player.create({ name: "你好呀", level: 10 });
 
-        // 序列化
+        //序列化
         let buffer = Player.encode(playerData).finish();
         console.log("Encoded Buffer:", buffer);
 
