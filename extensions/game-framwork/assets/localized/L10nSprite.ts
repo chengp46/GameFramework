@@ -49,7 +49,8 @@ export class L10nSprite extends Component {
         if (EDITOR) {
             if (this.sprite) {
                 let func = async () => {
-                    let url = imgData.path + '/' + imgData.imageName + "/spriteFrame";
+                    //let url = imgData.path + '/' + imgData.imageName + "/spriteFrame";
+                    let url = imgData.path + '/' + imgData.imageName;
                     let spriteFrame = await ResLoader.load(url, SpriteFrame, this.bundle);
                     console.log(`spriteFrame: ${spriteFrame}`);
                     this.sprite.spriteFrame = spriteFrame;

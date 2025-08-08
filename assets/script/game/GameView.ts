@@ -1,10 +1,9 @@
-import { _decorator, Node, Sprite, Label, SpriteFrame, input, Input, EventKeyboard, KeyCode } from 'cc';
+import { _decorator, Node, Sprite, Label, SpriteFrame, input, Input, EventKeyboard, KeyCode, tween, Vec3, v3 } from 'cc';
 import { SetDialog } from './SetDialog';
 import * as protobuf from "./network/proto/player.js";
 import { PrefabResource } from '../../../extensions/game-framwork/assets/Decorators';
 import { UIView } from '../../../extensions/game-framwork/assets/SceneManager';
 import { core } from '../../../extensions/game-framwork/assets/GameCore';
-import { LanguageMgr, LanguageType } from '../../../extensions/game-framwork/assets/localized/LanguageManager';
 import { L10nLabel } from '../../../extensions/game-framwork/assets/localized/L10nLabel';
 const { Player } = protobuf?.default;
 
@@ -18,7 +17,7 @@ export enum eSoundConfig {
 @ccclass('GameView')
 @PrefabResource("prefabs/gameView")
 export class GameView extends UIView {
-    @property(L10nLabel)
+    @property(core.L10nLabel)
     label: L10nLabel | null = null;
 
     @property(SpriteFrame)
@@ -29,6 +28,10 @@ export class GameView extends UIView {
 
     @property({ type: Sprite, displayName: "背景" })
     background: Sprite = null;
+
+
+    @property({ type: Node, displayName: "测试节点" })
+    testNode: Node = null;
 
     pressed: boolean = false;
     curkeyCode: KeyCode;
@@ -148,8 +151,15 @@ export class GameView extends UIView {
                 this.label.Key = "197001301_SITE_NAME_" + this.index++;
                 break;
             case '4':
-                let lang = this.count++ % 2 == 0 ? LanguageType.ZH : LanguageType.EN;
-                LanguageMgr.CurrentLanguage = lang;
+                let lang = this.count++ % 2 == 0 ? core.languageType.ZH : core.languageType.EN;
+                core.language.CurrentLanguage = lang;
+                break;
+            case '5':
+                //core.tweenUtil.moveTo(this.testNode, v3(100, 100, 0), 1);
+                //core.tweenUtil.scaleTo(this.testNode, 2, 1);
+                //core.tweenUtil.fadeOut(this.testNode);
+                //core.tweenUtil.scaleShake(this.testNode);
+                //core.tweenUtil.shake(this.testNode, 10, 2);
                 break;
             default:
                 break;

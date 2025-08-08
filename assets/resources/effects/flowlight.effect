@@ -1,0 +1,64 @@
+CCEffect %{
+techniques:
+  - passes:
+      - vert: vs
+        frag: fs
+        blendState:
+          targets:
+            - blend: true
+              blendSrc: src_alpha
+              blendDst: one_minus_src_alpha
+        rasterizerState:
+          cullMode: none
+        properties:
+          mainTexture: { value: white }
+          lightColor: { value: [1, 1, 1, 1] }
+          time: { value: 0 }
+          lightWidth: { value: 0.25 }
+          lightSpeed: { value: 1.0 }
+
+}%
+
+CCProgram vs %{
+precision highp float;
+#include <cc-global>
+#include <cc-local>
+
+in vec3 a_position;
+in vec2 a_texCoord;
+
+out vec2 v_uv;
+
+void main() {
+  vec4 pos = cc_matViewProj * cc_matWorld * vec4(a_position, 1.0);
+  gl_Position = pos;
+  v_uv = a_texCoord;
+}
+}%
+
+CCProgram fs %{
+precision highp float;
+#include <builtin/uniforms/cc-global>
+
+in vec2 v_uv;
+layout(location = 0)out vec4 fragColor;
+
+uniform sampler2D mainTexture;
+
+uniform MyUBO {
+  vec4 lightColor;
+  float time;
+  float lightWidth;
+  float lightSpeed;
+  float padding;
+};
+
+void main() {
+  vec4 color = texture(mainTexture, v_uv);
+  float lightPos = mod(time * lightSpeed, 1.0);
+  float dis = abs(v_uv.x - lightPos);
+  float strength = smoothstep(lightWidth, 0.0, dis);
+  vec4 finalColor = mix(color, lightColor, strength);
+  fragColor = finalColor * color.a;
+}
+}%

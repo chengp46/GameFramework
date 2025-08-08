@@ -93,6 +93,4 @@ export async function ready(this: any) {
         await Editor.Message.request('scene', 'soft-reload');
         await Editor.Message.send('scene', 'refresh-scene');
     });
-
-
 }

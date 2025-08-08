@@ -2,7 +2,7 @@ import { AudioMgr } from "./AudioManager";
 import { ConfigMgr } from "./ConfigManager";
 import HttpRequest from "./HttpRequest";
 import { LogManager } from "./LogManager";
-import { LanguageMgr } from "./localized/LanguageManager";
+import { LanguageMgr, LanguageType } from "./localized/LanguageManager";
 import { MessageMgr } from "./MessageManager";
 import ObjectPool from "./ObjectPool";
 import { ResLoader } from "./ResLoader";
@@ -21,6 +21,8 @@ import { RotateUtil } from "./utils/RotateUtil";
 import { StringUtil } from "./utils/StringUtil";
 import { Timer } from "./utils/TimeUtils";
 import { Vec3Util } from "./utils/Vec3Util";
+import { TweenUtils } from "./utils/TweenUtils";
+import { L10nLabel } from "./localized/L10nLabel";
 
 export class GameCore {
     audio = AudioMgr;
@@ -29,6 +31,7 @@ export class GameCore {
     config = ConfigMgr;
     message = MessageMgr;
     storage = StorageMgr;
+    languageType = LanguageType;
     httpReq = HttpRequest;
     log = LogManager;
     loader = ResLoader;
@@ -46,6 +49,8 @@ export class GameCore {
     stringUtil = StringUtil;
     timer = Timer;
     vec3Util = Vec3Util;
+    tweenUtil = TweenUtils;
+    L10nLabel = L10nLabel;
 }
 
 /** 全局 Window 接口 */

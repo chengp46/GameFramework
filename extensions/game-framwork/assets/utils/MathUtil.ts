@@ -15,7 +15,7 @@ export class MathUtil {
      * @param x -1为左，1为右
      * @returns 
      */
-    static sign(x: number) {
+    static sign(x: number): number {
         if (x > 0) {
             return 1;
         }
@@ -31,7 +31,7 @@ export class MathUtil {
      * @param end   结束值
      * @param t     时间
      */
-    static progress(start: number, end: number, t: number) {
+    static progress(start: number, end: number, t: number): number {
         return start + (end - start) * t;
     }
 
@@ -108,7 +108,7 @@ export class MathUtil {
      * @param minLimit  最小值
      * @param maxLimit  最大值
      */
-    static clamp(value: number, minLimit: number, maxLimit: number) {
+    static clamp(value: number, minLimit: number, maxLimit: number): number {
         if (value < minLimit) {
             return minLimit;
         }
