@@ -53,15 +53,15 @@ export class GameCore {
     L10nLabel = L10nLabel;
 }
 
-/** 全局 Window 接口 */
-declare global {
-    interface Window {
-        core: GameCore;
-    }
-    var core: GameCore;
-}
+// /** 全局 Window 接口 */
+// declare global {
+//     interface Window {
+//         core: GameCore;
+//     }
+//     var core: GameCore;
+// }
 
-// 初始化实例并挂载到全局
-const _gameCore = new GameCore();
-window.core = _gameCore;    
-export { _gameCore as core };
+// // 初始化实例并挂载到全局
+// const _gameCore = new GameCore();
+// window.core = _gameCore;    
+// export { _gameCore as core };
