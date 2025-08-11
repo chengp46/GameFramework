@@ -10,7 +10,7 @@ class EventData {
 }
 
 export class MessageManager {
-  static instance = new MessageManager;
+  static readonly instance = new MessageManager;
   private events: Map<string | number, Array<EventData>> = new Map();
 
   protected constructor() {
